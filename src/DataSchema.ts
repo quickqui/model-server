@@ -1,9 +1,7 @@
 
-import * as fs from 'fs'
 import { parse, DocumentNode, ObjectTypeDefinitionNode, FieldDefinitionNode, TypeNode, DirectiveNode, ListTypeNode, NonNullTypeNode, NamedTypeNode } from 'graphql'
 
-export function parseFromSchema(): DataModel {
-    const source = fs.readFileSync(__dirname + '/../datamodel.prisma').toString()
+export function parseFromSchema(source:string): DataModel {
     const document = parse(source)
     return new DataModel(document)
 }
@@ -42,12 +40,22 @@ class Field {
     name!: string;
     typeName!: TypeName;
     directives!: Directive[];
+    flags!:FieldFlag[]
     constructor(node: FieldDefinitionNode) {
         this.name = node.name.value
         this.typeName = new TypeName(node.type)
         this.directives = node.directives ? node.directives.map((it) => new Directive(it)) : []
+        this.flags = []
+        if(this.directives.find( d => d.name == "id")){
+            this.flags.push("id")
+        }
+        if(this.directives.find(d=> d.name == "relation")){
+            this.flags.push("relation")
+        }
     }
 }
+
+type FieldFlag = "id" | "name" | "relation"
 
 
 class TypeName {

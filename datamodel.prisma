@@ -10,4 +10,5 @@ type User {
   id: ID! @id
   name: String
   posts: [Post!]!  
+  alias: String!
 }
