@@ -9,7 +9,7 @@ type Post {
 
 type User {
   id: ID! @id
-  name: String 
+  name: String @brief
   posts: [Post!]!  
   tags: [String!]! @scalarList(strategy: RELATION)
   alias: String! 
@@ -17,5 +17,6 @@ type User {
 
 type Comment {
   id: ID! @id
-  content: String!
+  # TODO brief应该算是一个展现级别的标注
+  content: String! @brief
 }
