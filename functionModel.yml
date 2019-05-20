@@ -1,0 +1,9 @@
+functions:
+  - menuPath: Issue/Warning
+    base:
+      resource: Issue
+      crud: list
+    filters:
+      - express: "done === false"
+    orders:
+      - express: createDate

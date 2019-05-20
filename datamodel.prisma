@@ -10,7 +10,6 @@ type Post {
 type User {
   id: ID! @id
   name: String @brief
-  posts: [Post!]!  
   tags: [String!]! @scalarList(strategy: RELATION)
   alias: String! 
 }
@@ -19,4 +18,23 @@ type Comment {
   id: ID! @id
   # TODO brief应该算是一个展现级别的标注
   content: String! @brief
+  owner: User! @relation(link: INLINE)
+}
+
+type Issue {
+  id: ID! @id
+  title: String! @brief
+  content: String!
+  createTime: DateTime! 
+  owner: User! @relation(link: INLINE)
+  done: Boolean!
+  function: Function! @relation(link: INLINE)
+}
+
+type Function {
+  id:ID! @id
+  group:String!
+  name:String! @brief
+  content:String!
+  owner: User! @relation(link: INLINE)
 }

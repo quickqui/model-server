@@ -8,6 +8,7 @@ export function parseFromSchema(source: string): DataModel {
 
 
 export class DataModel {
+    //TODO 增加枚举
     types!: TypeDef[]
     constructor(document: DocumentNode) {
         this.types = document.definitions.filter((def) =>
@@ -38,30 +39,19 @@ class Directive {
 }
 class Field {
     name!: string;
-    typeName!: TypeName;
+    typeRef!: TypeRef;
     directives!: Directive[];
-    flags!: FieldFlag[]
     constructor(node: FieldDefinitionNode) {
         this.name = node.name.value
-        this.typeName = new TypeName(node.type)
+        this.typeRef = new TypeRef(node.type)
         this.directives = node.directives ? node.directives.map((it) => new Directive(it)) : []
-        this.flags = []
-        if (this.directives.find(d => d.name == "id")) {
-            this.flags.push("id")
-        }
-        if (this.directives.find(d => d.name == "relation")) {
-            this.flags.push("relation")
-        }
-        if (this.directives.find(d => d.name === "brief")) {
-            this.flags.push("brief")
-        }
+        
     }
 }
 
-type FieldFlag = "id" | "brief" | "relation"
 const scalarTypes = ["String", "", "Int", "Float", "Boolean", "DateTime", "ID"]
 
-class TypeName {
+class TypeRef {
     name!: string;
     isList!: boolean;
     isNotNull!: boolean;
