@@ -4,14 +4,15 @@ export interface FunctionModel {
     functions: Function[]
 }
 
-interface Function {
+export interface Function {
     menuPath: string[]
+    name: string
     base: {
         resource: string
         crud: string
     }
-    filters: Filter[]
-    orders: Order[]
+    filter: object
+    sort: object
     actions: Action[]
     fields: {
         prefills: {
@@ -22,13 +23,6 @@ interface Function {
     }
 }
 
-interface Filter {
-    express: string
-
-}
-interface Order{
-    express:string
-}
 
 interface Action {
     name: string

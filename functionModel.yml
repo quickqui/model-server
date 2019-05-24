@@ -1,9 +1,9 @@
 functions:
-  - menuPath: Issue/Warning
+  - name: NotDone
     base:
       resource: Issue
       crud: list
-    filters:
-      - express: "done === false"
-    orders:
-      - express: createDate
+    filter:
+      done: false
+    sort:
+      createTime: DESC
