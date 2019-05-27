@@ -14,19 +14,10 @@ export interface Function {
     filter: object
     sort: object
     actions: Action[]
-    fields: {
-        prefills: {
-            name: string
-            prefill: Prefill
-        }[]
-        hiddens: string[]
-    }
+    prefill: object
 }
 
 
 interface Action {
     name: string
-}
-interface Prefill {
-    value: string
 }
