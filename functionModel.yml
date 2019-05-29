@@ -1,5 +1,7 @@
 functions:
   - name: NotDone
+    menuPath: Issue
+    icon: done
     base:
       resource: Issue
       crud: list

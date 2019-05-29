@@ -5,7 +5,8 @@ export interface FunctionModel {
 }
 
 export interface Function {
-    menuPath: string[]
+    menuPath: string
+    icon: string
     name: string
     base: {
         resource: string

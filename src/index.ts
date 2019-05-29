@@ -19,6 +19,7 @@ app.use(bodyParser.text());
 
 app.get("/model", (req, res) => {
     //TODO 从 git repository 拉取。
+    //TODO model的多文件整合。
     const dModelsource = fs.readFileSync(__dirname + '/../datamodel.prisma').toString()
     const dmodel: DataModel = parseFromSchema(dModelsource)
     const fModelSource = fs.readFileSync(__dirname + '/../functionModel.yml').toString()
@@ -58,6 +59,7 @@ app.post("/deploy/force", (req, res) => {
     }
 })
 
+//TODO 使用prisma 管理api来deploy。
 app.post("/deploy", (req, res) => {
     const result = shell.exec("npx prisma deploy")
     if (result.stdout.includes("export DEBUG")) {
