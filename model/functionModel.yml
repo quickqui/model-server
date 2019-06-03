@@ -11,9 +11,3 @@ functions:
       createTime: DESC
     actions:
       - FinishIssue
-  - name: FinishIssue
-    base:
-      resource: Issue
-      crud: edit
-    prefill:
-      done: true

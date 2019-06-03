@@ -5,11 +5,10 @@ import { parseFromSchema, DataModel } from './DataSchema'
 
 
 import * as express from "express";
-import * as fs from 'fs'
 import * as shell from 'shelljs'
 import * as bodyParser from 'body-parser'
-import { FunctionModel } from './FunctionModel';
-import * as yaml from 'js-yaml'
+
+import { modelRepository } from './ModelRepository';
 
 
 
@@ -17,19 +16,22 @@ const app = express();
 const port = 1111; // default port to listen
 app.use(bodyParser.text());
 
-app.get("/model", (req, res) => {
-    //TODO 从 git repository 拉取。
-    //TODO model的多文件整合。
-    const dModelsource = fs.readFileSync(__dirname + '/../datamodel.prisma').toString()
-    const dmodel: DataModel = parseFromSchema(dModelsource)
-    const fModelSource = fs.readFileSync(__dirname + '/../functionModel.yml').toString()
-    const fmodel: FunctionModel = yaml.safeLoad(fModelSource)
-    const model = {
-        dataModel: dmodel,
-        functionModel: fmodel
+app.get("/model", async function (req, res, next) {
+    try {
+        const repository = await modelRepository()
+        res.status(200).json(repository.model)
+    } catch (e) {
+        next(e);
     }
-    res.status(200).json(model)
-})
+});
+
+//TODO 从容器外获取model文件。
+//比如从 git repository 拉取。
+//TODO model的多文件整合。
+
+
+//     res.status(200).json(modelRepository.model)
+// })
 
 // define a route handler for the default home page
 // app.get("/dataModel", (req, res) => {

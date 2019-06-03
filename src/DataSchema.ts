@@ -1,5 +1,7 @@
 
-import { parse, DocumentNode, ObjectTypeDefinitionNode, FieldDefinitionNode, TypeNode, DirectiveNode, ListTypeNode, NonNullTypeNode, NamedTypeNode } from 'graphql'
+import { parse, DocumentNode, ObjectTypeDefinitionNode, FieldDefinitionNode, 
+    TypeNode, DirectiveNode, ListTypeNode, NonNullTypeNode, 
+    NamedTypeNode } from 'graphql'
 
 export function parseFromSchema(source: string): DataModel {
     const document = parse(source)
@@ -17,6 +19,9 @@ export class DataModel {
             new TypeDef(it as ObjectTypeDefinitionNode)
         )
     }
+    // public merge(that:DataModel){
+    //     this.types.concat(that.types)
+    // }
     public type(name: string): TypeDef | undefined {
         return this.types.find((it) => it.name == name)
     }
