@@ -9,16 +9,25 @@ export interface Function {
     icon: string
     name: string
     base: {
+        function: string
         resource: string
-        crud: string
     }
     filter: object
     sort: object
-    actions: Action[]
     prefill: object
+
+    links: Link[]
+    action: Action
 }
 
 
-interface Action {
-    name: string
+interface Link {
+    label: string
+    type: "entity"|"list"
+    function: string
+    args: object
+}
+
+interface Action{
+    
 }

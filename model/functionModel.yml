@@ -1,13 +1,15 @@
 functions:
   - name: NotDone
-    menuPath: Issue
+    menuPath: Issue/NotDone
     icon: done
     base:
       resource: Issue
-      crud: list
+      function: list
     filter:
       done: false
     sort:
       createTime: DESC
-    actions:
-      - FinishIssue
+    links:
+      - label: FinishIssue
+        type: entity
+        function: FinishIssue

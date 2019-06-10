@@ -2,6 +2,6 @@ functions:
   - name: FinishIssue
     base:
       resource: Issue
-      crud: edit
+      function: edit
     prefill:
       done: true
