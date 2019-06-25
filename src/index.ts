@@ -9,6 +9,7 @@ import * as shell from 'shelljs'
 import * as bodyParser from 'body-parser'
 
 import { modelRepository } from './ModelRepository';
+import deploy from './Deploy'
 
 
 
@@ -24,6 +25,18 @@ app.get("/model", async function (req, res, next) {
         next(e);
     }
 });
+
+
+//TODO 使用prisma 管理api来deploy。
+app.post("/deploy", async function (req, res,next)  {
+    try {
+        const repository = await modelRepository()
+        const result = await deploy(repository.dataModelSource)
+        res.status(200).send(result)
+    } catch (e) {
+        next(e);
+    }
+})
 
 //TODO 从容器外获取model文件。
 //比如从 git repository 拉取。
@@ -61,15 +74,7 @@ app.post("/deploy/force", (req, res) => {
     }
 })
 
-//TODO 使用prisma 管理api来deploy。
-app.post("/deploy", (req, res) => {
-    const result = shell.exec("npx prisma deploy")
-    if (result.stdout.includes("export DEBUG")) {
-        res.status(512).send(result.stdout)
-    } else {
-        res.status(202).send(result.stdout)
-    }
-})
+
 
 
 // start the express server
