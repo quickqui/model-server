@@ -1,9 +1,4 @@
-type User {
-  id: ID! @id
-  email: String! @unique
-  password: String!
-  name: String
-}
+
 
 type Issue {
   id: ID! @id
