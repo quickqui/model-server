@@ -25,19 +25,37 @@ type DeployPayload {
 
 */
 
-export default function deploy(typeDefines: string)  : Promise<string> {
+export default function deploy(typeDefines: string, dryRun:Boolean = true ,force:Boolean  = false): Promise<object> {
     const url = 'http://prisma:4466/management'
     const query = `
-        mutation Deploy($input: DeployInput){
-            deploy($input){
-                migration,
-                errors,
-                warnings,
+        mutation Deploy($input: DeployInput!){
+            deploy(input: $input){
+                migration{
+                    status
+                }
+                errors{
+                    type,
+                    field,
+                    description
+                }
+                warnings{
+                    description
+                }
             }
         }
     `
-    return request(url , query,{typeDefines}).then((rep)=>{
-        console.log(rep)
-        return rep.toString()
+    const queryInput = {
+        types: typeDefines,
+        name: "default",
+        stage: "default",
+        force,
+        dryRun
+    }
+    return request(url, query, {input:queryInput}).then((rep) => {
+        // console.log(rep)
+        (rep as any).deploy.errors.forEach((e)=>{
+            console.log(e)
+        })
+        return rep
     })
 }

@@ -3,7 +3,7 @@ type User {
   email: String! @unique
   password: String!
   name: String
-  roles: [Role!]! @relation(link: Table)
+  roles: [Role!]! @relation(link: TABLE)
 }
 
 type Role {

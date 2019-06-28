@@ -32,7 +32,7 @@ app.post("/deploy", async function (req, res,next)  {
     try {
         const repository = await modelRepository()
         const result = await deploy(repository.dataModelSource)
-        res.status(200).send(result)
+        res.status(200).json(result)
     } catch (e) {
         next(e);
     }
