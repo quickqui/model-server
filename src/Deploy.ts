@@ -39,6 +39,8 @@ export default function deploy(typeDefines: string, dryRun:Boolean = true ,force
                     description
                 }
                 warnings{
+                    type,
+                    field,
                     description
                 }
             }
