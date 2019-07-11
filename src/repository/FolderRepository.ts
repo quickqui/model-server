@@ -1,13 +1,12 @@
-import { Model } from "./Model";
+import { Model } from "../Model";
 import { ModelRepository } from "./ModelRepository";
 
-import { FunctionModel } from './FunctionModel';
 import * as yaml from 'js-yaml'
 
 import * as fs from 'fs'
-import { DataModel, parseFromSchema } from "./DataSchema";
 import * as readdir from 'recursive-readdir';
 import * as minimatch from 'minimatch'
+import { toPrismaSchemaString } from "../data/PrimsaDataSchema";
 
 
 export class FolderRepository implements ModelRepository {
@@ -16,20 +15,20 @@ export class FolderRepository implements ModelRepository {
     dataModelSource: string = ''
 
 
-    static async findFiles(base: string): Promise<{ dataModelFiles: string[], functionModelFiles: string[] }> {
+    static async findFiles(base: string): Promise<{ domainModelFiles: string[], functionModelFiles: string[] }> {
         const functionModelFiles: string[] = []
-        const dataModelFiles: string[] = []
+        const domainModelFiles: string[] = []
         const files = await readdir(base)
         files.forEach(file => {
             //TODO 目录结构、文件名映射到命名空间
             if (minimatch(file, "**/*.functionModel.*") ||
                 minimatch(file, "**/functionModel.*"))
                 functionModelFiles.push(file)
-            if (minimatch(file, "**/*.dataModel.*") ||
-                minimatch(file, "**/dataModel.*"))
-                dataModelFiles.push(file)
+            if (minimatch(file, "**/*.domainModel.*") ||
+                minimatch(file, "**/domainModel.*"))
+                domainModelFiles.push(file)
         });
-        return { dataModelFiles, functionModelFiles }
+        return { domainModelFiles, functionModelFiles }
     }
 
 
@@ -46,26 +45,36 @@ export class FolderRepository implements ModelRepository {
 
     static async build(base: string) {
         const files = FolderRepository.findFiles(base)
-        const { dataModelFiles, functionModelFiles } = await files
+        const { domainModelFiles, functionModelFiles } = await files
 
-        const dModelsource = dataModelFiles.map((fpath) => {
-            return fs.readFileSync(fpath).toString()
-        }).join("\n\n")
-        const dmodel: DataModel = parseFromSchema(dModelsource)
+
+        // const dmodel: DataModel = parseFromSchema(dModelsource)
         const fmodels =
             functionModelFiles.map((fpath) => {
                 const fModelSource = fs.readFileSync(fpath).toString()
                 return yaml.safeLoad(fModelSource)
             })
-        const fmodel = fmodels.reduce((a,b)=>{
+        const fmodel = fmodels.reduce((a, b) => {
             return {
-                functions:             a.functions.concat(b.functions)
+                functions: a.functions.concat(b.functions)
 
             }
         })
+        const dmodels = domainModelFiles.map((fpath) => {
+            const dModelSource = fs.readFileSync(fpath).toString()
+            return yaml.safeLoad(dModelSource)
+        })
+        const dmodel = dmodels.reduce((a, b) => {
+            return {
+                entities: a.entities.concat(b.entities),
+                enums: (a.enums || []).concat(b.enums)
+            }
+        })
+
+        const dModelSource = toPrismaSchemaString(dmodel)
         return new FolderRepository(base,
-            { dataModel: dmodel, functionModel: fmodel }
-            , dModelsource)
+            { domainModel: dmodel, functionModel: fmodel }
+            , dModelSource)
 
     }
 }

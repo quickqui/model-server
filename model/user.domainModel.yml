@@ -1,0 +1,29 @@
+entities:
+  - name: User
+    # base = id + createdAt + update
+    #__base: base
+    properties:
+      - name: name 
+        type: string
+        constraints: 
+          - required
+      - name: email
+        type: string
+        constraints:
+          - required
+          - email  
+      - name: password
+        type: string
+        constraints:
+          - required
+      - name: roles
+        relation:
+          to: Role  
+          n: many
+  - name: Role
+    properties:
+      - name: name
+        type: string
+        constraints: 
+          - required
+          

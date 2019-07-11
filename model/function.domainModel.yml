@@ -1,0 +1,42 @@
+entities:
+  - name: Issue
+    properties:
+      - name: title
+        type: String
+        constraints: 
+          - required
+      - name: owner
+        constraints: #只有toone的relation有用？
+          - required
+        relation:
+          to: User
+          n: one
+      - name: done
+        type: Boolean
+        constraints:
+          - required
+        default: false
+      - name: function
+        constraints: 
+          - required        
+        relation:
+          to: Function
+          n: one
+  - name: Function
+    properties:
+      - name: group
+        type: String
+        constraints:
+          - required
+      - name: name
+        type: String
+        constraints:
+          - required
+      - name: content
+        type: String
+        constraints:
+          - required
+      - name: owner
+        relation:
+          to: User
+          n: one

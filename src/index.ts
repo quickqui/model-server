@@ -1,15 +1,9 @@
 
-import { parseFromSchema, DataModel } from './DataSchema'
-
-
-
-
 import * as express from "express";
-import * as shell from 'shelljs'
 import * as bodyParser from 'body-parser'
 
-import { modelRepository } from './ModelRepository';
-import deploy from './Deploy'
+import { modelRepository } from './repository/ModelRepository';
+import deploy from './data/Deploy'
 
 
 
@@ -20,6 +14,7 @@ app.use(bodyParser.text());
 app.get("/model", async function (req, res, next) {
     try {
         const repository = await modelRepository()
+        console.log(repository.dataModelSource)
         res.status(200).json(repository.model)
     } catch (e) {
         next(e);

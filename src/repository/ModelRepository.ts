@@ -1,4 +1,4 @@
-import { Model } from "./Model";
+import { Model } from "../Model";
 import { FolderRepository } from "./FolderRepository";
 
 export interface ModelRepository {
@@ -8,5 +8,5 @@ export interface ModelRepository {
 
 
 export function modelRepository():  Promise<FolderRepository> {
-   return FolderRepository.build(__dirname+"/../model")
+   return FolderRepository.build(__dirname+"/../../model")
 }

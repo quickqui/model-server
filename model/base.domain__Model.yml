@@ -1,0 +1,13 @@
+properties:
+  - name: id
+    type: id
+    constraints:
+      - required
+  - name: updatedTime
+    type: DateTime
+    constraints:
+      - required
+  - name: createdTime
+    type: DateTime
+    constraints:
+      - required
