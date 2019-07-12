@@ -5,7 +5,7 @@ export interface DomainModel {
     enums?: Enum[]
 }
 
-interface Entity extends Inheritable {
+export interface Entity extends Inheritable {
     name: string
     properties: Property[]
 }

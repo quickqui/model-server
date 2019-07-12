@@ -14,7 +14,6 @@ app.use(bodyParser.text());
 app.get("/model", async function (req, res, next) {
     try {
         const repository = await modelRepository()
-        console.log(repository.dataModelSource)
         res.status(200).json(repository.model)
     } catch (e) {
         next(e);

@@ -7,6 +7,7 @@ import * as fs from 'fs'
 import * as readdir from 'recursive-readdir';
 import * as minimatch from 'minimatch'
 import { toPrismaSchemaString } from "../data/PrimsaDataSchema";
+import domainModelBase from "../domain/DomainBase"
 
 
 export class FolderRepository implements ModelRepository {
@@ -71,9 +72,17 @@ export class FolderRepository implements ModelRepository {
             }
         })
 
-        const dModelSource = toPrismaSchemaString(dmodel)
+
+        //TODO 应该有个更高的位置。
+        const domainModel = {
+            entities: dmodel.entities.map((entity) => domainModelBase(entity)),
+            enums: dmodel.enums
+        }
+
+
+        const dModelSource = toPrismaSchemaString(domainModel)
         return new FolderRepository(base,
-            { domainModel: dmodel, functionModel: fmodel }
+            { domainModel: domainModel, functionModel: fmodel }
             , dModelSource)
 
     }

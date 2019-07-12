@@ -11,6 +11,7 @@ entities:
         type: string
         constraints:
           - required
+          - unique
           - email  
       - name: password
         type: string

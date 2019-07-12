@@ -1,8 +1,9 @@
 import { DomainModel, Property, List } from "../domain/DomainModel";
-import * as camelCase from 'camelCase';
+import * as camelCase from 'camelcase';
 import * as _ from 'lodash'
 
 export function toPrismaSchemaString(domainModel: DomainModel): string {
+    //what?
     function typeMapping(type: any) {
         const scalas = ["string", "boolean"]
         if (type.itemType) {
@@ -38,15 +39,15 @@ export function toPrismaSchemaString(domainModel: DomainModel): string {
         let re = ""
         if (property.relation) {
             if (property.relation.n === "one") {
-                re += ` @relation(link="INLINE")`
+                re += ` @relation(link: INLINE)`
             } else if (property.relation.n == "many") {
-                //TODO 考虑是否需要link=TABLE，比如many2many的时候。
-                re += ` @relation(link="INLINE")`
+                re += ` @relation(link: TABLE)`
             } else {
                 throw new Error(`illegal property relation - ${JSON.stringify(property)}`)
             }
         }
-        if (property.name === "ID") {
+        
+        if (property.type === "ID") {
             re += ` @id`
         }
         if (property.name === "createAt") {
@@ -61,7 +62,7 @@ export function toPrismaSchemaString(domainModel: DomainModel): string {
         }
         if (!_.isUndefined(property.default)) {
             //TODO 需要处理字符串值的引号问题？
-            re += ` @default(value=${property.default})`
+            re += ` @default(value: ${property.default})`
         }
         console.log(`property - ${JSON.stringify(property)}`)
         return re
@@ -74,7 +75,7 @@ export function toPrismaSchemaString(domainModel: DomainModel): string {
     //TODO 实现enum
     //TODO 解决缩进的问题
     return domainModel.entities.map((entity) => {
-        return `type ${entity.name}{
+        return `type ${entity.name} {
                 ${
             entity.properties.map((property) => propertyToString(property)).join("\n")
             }

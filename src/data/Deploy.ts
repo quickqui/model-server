@@ -53,6 +53,7 @@ export default function deploy(typeDefines: string, dryRun:Boolean = true ,force
         force,
         dryRun
     }
+    console.log(typeDefines)
     return request(url, query, {input:queryInput}).then((rep) => {
         // console.log(rep)
         (rep as any).deploy.errors.forEach((e)=>{
