@@ -1,6 +1,6 @@
-import { Entity } from "./DomainModel";
+import { Entity, DomainModel } from "./DomainModel";
 
-export default function base(entity: Entity): Entity {
+export function defaultProperties(entity: Entity): Entity {
     return {
         name: entity.name,
         properties: entity.properties.concat(
@@ -10,5 +10,15 @@ export default function base(entity: Entity): Entity {
                 { name: 'updateAt', type: 'DateTime', constraints: ['required'] }
             ]
         )
+    }
+}
+
+
+
+
+export function domainInherite(domainModel: DomainModel): DomainModel {
+    return {
+        entities: domainModel.entities.map((entity) => defaultProperties(entity)),
+        enums: domainModel.enums
     }
 }

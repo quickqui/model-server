@@ -46,7 +46,7 @@ export function toPrismaSchemaString(domainModel: DomainModel): string {
                 throw new Error(`illegal property relation - ${JSON.stringify(property)}`)
             }
         }
-        
+
         if (property.type === "ID") {
             re += ` @id`
         }
