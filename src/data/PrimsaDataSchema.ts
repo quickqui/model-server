@@ -33,7 +33,6 @@ export function toPrismaSchemaString(domainModel: DomainModel): string {
                 throw new Error(`unknown type property - ${JSON.stringify(property)}`)
             }
         }
-        throw new Error(`unknown type property - ${JSON.stringify(property)}`)
     }
     function toDirective(property: Property): string {
         let re = ""
@@ -64,7 +63,6 @@ export function toPrismaSchemaString(domainModel: DomainModel): string {
             //TODO 需要处理字符串值的引号问题？
             re += ` @default(value: ${property.default})`
         }
-        console.log(`property - ${JSON.stringify(property)}`)
         return re
     }
     function propertyToString(property: Property): string {
