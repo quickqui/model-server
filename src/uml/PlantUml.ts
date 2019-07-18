@@ -56,16 +56,15 @@ export function toPlantUml(domainModel: DomainModel): string {
         }).join("\n\n") +
         //relations
         domainModel.entities.map((entity) => {
-           return _(entity.properties).filter(
+            return _(entity.properties).filter(
                 (p) => !(_.isUndefined(p.relation))
             ).map(
                 (p) => {
-                    console.log(p)
-                 return    p.relation && p.relation.to
+                    return p.relation && p.relation.to
                 }
             ).map(
                 (to) => {
-                return `${entity.name} --> ${to}`
+                    return `${entity.name} --> ${to}`
                 }
             ).value().join("\n")
         }).join("\n") +

@@ -5,6 +5,7 @@ import * as bodyParser from 'body-parser'
 import { repository } from './repository/ModelRepository';
 import deploy from './data/Deploy'
 import { toPlantUml } from "./uml/PlantUml";
+import  axios from "axios"
 
 
 
@@ -33,7 +34,19 @@ app.get("/uml", async function (req, res, next) {
         next(e);
     }
 });
-
+app.get("/uml/svg", async function (req, res, next) {
+    try {
+        const re = await repository
+        if (re.model.domainModel){
+            const startUML = toPlantUml(re.model.domainModel)
+            const rep =  await axios.post('http://localhost:1608/svg', startUML)
+            res.status(200).send(rep.data)
+        }else 
+            res.status(404).send("no domain model")
+    } catch (e) {
+        next(e);
+    }
+})
 //TODO 从容器外获取model文件。
 //比如从 git repository 拉取。
 //TODO 使用prisma 管理api来deploy。

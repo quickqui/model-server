@@ -22,6 +22,8 @@ entities:
         relation:
           to: Function
           n: one
+      - name: deadline
+        type: DateTime
   - name: Function
     properties:
       - name: group
