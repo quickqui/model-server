@@ -2,7 +2,7 @@
 import * as express from "express";
 import * as bodyParser from 'body-parser'
 
-import { modelRepository } from './repository/ModelRepository';
+import { repository } from './repository/ModelRepository';
 import deploy from './data/Deploy'
 import { toPlantUml } from "./uml/PlantUml";
 
@@ -14,8 +14,8 @@ app.use(bodyParser.text());
 
 app.get("/model", async function (req, res, next) {
     try {
-        const repository = await modelRepository()
-        res.status(200).json(repository.model)
+        const re = await repository
+        res.status(200).json(re.model)
     } catch (e) {
         next(e);
     }
@@ -24,10 +24,11 @@ app.get("/model", async function (req, res, next) {
 
 app.get("/uml", async function (req, res, next) {
     try {
-        const repository = await modelRepository()
-        if (repository.model.domainModel)
-            console.log(toPlantUml(repository.model.domainModel))
-        res.status(200).json(repository.model)
+        const re = await repository
+        if (re.model.domainModel)
+            res.status(200).send(toPlantUml(re.model.domainModel))
+        else 
+            res.status(404).send("no domain model")
     } catch (e) {
         next(e);
     }
@@ -38,8 +39,8 @@ app.get("/uml", async function (req, res, next) {
 //TODO 使用prisma 管理api来deploy。
 app.post("/deploy", async function (req, res, next) {
     try {
-        const repository = await modelRepository()
-        const result = await deploy(repository.dataModelSource)
+        const re = await repository
+        const result = await deploy(re.dataModelSource)
         res.status(200).json(result)
     } catch (e) {
         next(e);
@@ -49,8 +50,8 @@ app.post("/deploy", async function (req, res, next) {
 
 app.post("/deploy/force", async function (req, res, next) {
     try {
-        const repository = await modelRepository()
-        const result = await deploy(repository.dataModelSource, false, true)
+        const re = await repository
+        const result = await deploy(re.dataModelSource, false, true)
         res.status(200).json(result)
     } catch (e) {
         next(e);

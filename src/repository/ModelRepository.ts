@@ -7,6 +7,8 @@ export interface ModelRepository {
 }
 
 
-export function modelRepository():  Promise<FolderRepository> {
-   return FolderRepository.build(__dirname+"/../../model")
-}
+export const repository = FolderRepository.build(__dirname+"/../../model")
+
+// export function modelRepository():  Promise<FolderRepository> {
+//    return FolderRepository.build(__dirname+"/../../model")
+// }

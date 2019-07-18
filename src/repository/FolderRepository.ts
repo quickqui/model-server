@@ -45,8 +45,7 @@ export class FolderRepository implements ModelRepository {
     }
 
     static async build(base: string) {
-        const files = FolderRepository.findFiles(base)
-        const { domainModelFiles, functionModelFiles } = await files
+        const { domainModelFiles, functionModelFiles } = await FolderRepository.findFiles(base)
 
 
         // const dmodel: DataModel = parseFromSchema(dModelsource)
