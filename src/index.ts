@@ -34,13 +34,13 @@ app.get("/uml", async function (req, res, next) {
         next(e);
     }
 });
-app.get("/uml/svg", async function (req, res, next) {
+app.get("/uml/svg/:id", async function (req, res, next) {
     try {
         const re = await repository
         if (re.model.domainModel){
             const startUML = toPlantUml(re.model.domainModel)
             const rep =  await axios.post('http://localhost:1608/svg', startUML)
-            res.status(200).send(rep.data)
+            res.status(200).json({id:1,source:rep.data})
         }else 
             res.status(404).send("no domain model")
     } catch (e) {
