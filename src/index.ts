@@ -4,7 +4,7 @@ import * as bodyParser from 'body-parser'
 
 import { repository } from './repository/ModelRepository';
 import deploy from './data/Deploy'
-import { toPlantUml } from "./uml/PlantUml";
+import { domainToPlanUml, functionsToPlantUml, usecaseToPlantUml } from "./uml/PlantUml";
 import  axios from "axios"
 
 
@@ -27,18 +27,19 @@ app.get("/uml", async function (req, res, next) {
     try {
         const re = await repository
         if (re.model.domainModel)
-            res.status(200).send(toPlantUml(re.model.domainModel))
+            res.status(200).send(domainToPlanUml(re.model.domainModel))
         else 
             res.status(404).send("no domain model")
     } catch (e) {
         next(e);
     }
 });
-app.get("/uml/svg/:id", async function (req, res, next) {
+app.get("/uml/entities/:id", async function (req, res, next) {
+    //:id （暂时）是假的
     try {
         const re = await repository
         if (re.model.domainModel){
-            const startUML = toPlantUml(re.model.domainModel)
+            const startUML = domainToPlanUml(re.model.domainModel)
             const rep =  await axios.post('http://localhost:1608/svg', startUML)
             res.status(200).json({id:1,source:rep.data})
         }else 
@@ -46,6 +47,37 @@ app.get("/uml/svg/:id", async function (req, res, next) {
     } catch (e) {
         next(e);
     }
+})
+app.get("/uml/functions/:id", async function (req, res, next) {
+        //:id （暂时）是假的
+
+    try {
+        const re = await repository
+        if (re.model.functionModel){
+            const startUML = functionsToPlantUml(re.model.functionModel)
+            const rep =  await axios.post('http://localhost:1608/svg', startUML)
+            res.status(200).json({id:1,source:rep.data})
+        }else 
+            res.status(404).send("no function model")
+    } catch (e) {
+        next(e);
+    }
+})
+
+app.get("/uml/usecases/:id", async function (req, res, next) {
+    //:id （暂时）是假的
+
+try {
+    const re = await repository
+    if (re.model.functionModel){
+        const startUML = usecaseToPlantUml(re.model.functionModel)
+        const rep =  await axios.post('http://localhost:1608/svg', startUML)
+        res.status(200).json({id:1,source:rep.data})
+    }else 
+        res.status(404).send("no function model")
+} catch (e) {
+    next(e);
+}
 })
 //TODO 从容器外获取model文件。
 //比如从 git repository 拉取。

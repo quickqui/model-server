@@ -13,3 +13,6 @@ functions:
       - label: FinishIssue
         type: entity
         function: FinishIssue
+    roles:
+      - User
+      - Admin

@@ -15,6 +15,7 @@ export interface Function {
     filter: object
     sort: object
     prefill: object
+    roles: string[]
 
     links: Link[]
     action: Action

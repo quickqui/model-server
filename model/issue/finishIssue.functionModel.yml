@@ -5,3 +5,5 @@ functions:
       function: edit
     prefill:
       done: true
+    roles:
+      - Admin
