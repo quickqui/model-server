@@ -11,6 +11,10 @@ import  axios from "axios"
 
 const app = express();
 const port = 1111; // default port to listen
+
+const platumlServiceUrl = 'http://plantuml-service:1608/svg';
+
+
 app.use(bodyParser.text());
 
 app.get("/model", async function (req, res, next) {
@@ -40,7 +44,7 @@ app.get("/uml/entities/:id", async function (req, res, next) {
         const re = await repository
         if (re.model.domainModel){
             const startUML = domainToPlanUml(re.model.domainModel)
-            const rep =  await axios.post('http://localhost:1608/svg', startUML)
+            const rep =  await axios.post(platumlServiceUrl, startUML)
             res.status(200).json({id:1,source:rep.data})
         }else 
             res.status(404).send("no domain model")
@@ -55,7 +59,7 @@ app.get("/uml/functions/:id", async function (req, res, next) {
         const re = await repository
         if (re.model.functionModel){
             const startUML = functionsToPlantUml(re.model.functionModel)
-            const rep =  await axios.post('http://localhost:1608/svg', startUML)
+            const rep =  await axios.post(platumlServiceUrl, startUML)
             res.status(200).json({id:1,source:rep.data})
         }else 
             res.status(404).send("no function model")
@@ -71,7 +75,7 @@ try {
     const re = await repository
     if (re.model.functionModel){
         const startUML = usecaseToPlantUml(re.model.functionModel)
-        const rep =  await axios.post('http://localhost:1608/svg', startUML)
+        const rep =  await axios.post(platumlServiceUrl, startUML)
         res.status(200).json({id:1,source:rep.data})
     }else 
         res.status(404).send("no function model")
