@@ -54,7 +54,7 @@ class Field {
     }
 }
 
-const scalarTypes = ["String", "", "Int", "Float", "Boolean", "DateTime", "ID"]
+const scalarTypes = ["String", "Int", "Float", "Boolean", "DateTime", "ID"]
 
 class TypeRef {
     name!: string;

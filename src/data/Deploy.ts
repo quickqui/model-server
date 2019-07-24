@@ -25,8 +25,16 @@ type DeployPayload {
 
 */
 
-export default function deploy(typeDefines: string, dryRun:Boolean = true ,force:Boolean  = false): Promise<object> {
-    const url = 'http://prisma:4466/management'
+interface Project {
+    name: string
+    stage: string
+}
+
+const url = 'http://prisma:4466/management'
+
+//TODO migration返回里面有挺多需要关注的，后续看新的prisma有没有变化
+export default function deploy(typeDefines: string, project: Project = { name: "default", stage: "default" },
+    dryRun: Boolean = true, force: Boolean = false): Promise<object> {
     const query = `
         mutation Deploy($input: DeployInput!){
             deploy(input: $input){
@@ -48,17 +56,42 @@ export default function deploy(typeDefines: string, dryRun:Boolean = true ,force
     `
     const queryInput = {
         types: typeDefines,
-        name: "default",
-        stage: "default",
         force,
-        dryRun
+        dryRun,
+        ...project
     }
     console.log(typeDefines)
-    return request(url, query, {input:queryInput}).then((rep) => {
+    return request(url, query, { input: queryInput }).then((rep) => {
         // console.log(rep)
-        (rep as any).deploy.errors.forEach((e)=>{
+        (rep as any).deploy.errors.forEach((e) => {
             console.log(e)
         })
         return rep
     })
+}
+
+
+
+export function insuringProject(project: Project = { name: "default", stage: "default" }): Promise<object> {
+
+    /*
+    name: String!
+    stage: String!
+    secrets: [String!]
+    */
+    const queryInput = {
+        secrets: [],
+        ...project
+    }
+    const query = `
+        mutation AddProject($input: AddProjectInput!){
+            addProject(input: $input){
+                project{
+                    name
+                }
+            }
+        }
+    `
+    return request(url, query, { input: queryInput })
+
 }

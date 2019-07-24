@@ -21,6 +21,9 @@ entities:
         relation:
           to: Role  
           n: many
+    #TODO 考虑这个东西在这里是否合适。
+    directives:
+      brief: name
   - name: Role
     properties:
       - name: name

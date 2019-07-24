@@ -6,6 +6,7 @@ export interface ModelRepository {
     readonly dataModelSource: string
 }
 
+//TODO 目前没有刷新机制？
 
 export const repository = FolderRepository.build(__dirname+"/../../model")
 
