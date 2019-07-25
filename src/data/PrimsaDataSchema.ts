@@ -49,11 +49,11 @@ export function toPrismaSchemaString(domainModel: DomainModel): string {
         if (property.type === "ID") {
             re += ` @id`
         }
-        if (property.name === "createAt") {
-            re += ` @createAt`
+        if (property.name === "createdAt") {
+            re += ` @createdAt`
         }
-        if (property.name === "updateAt") {
-            re += ` @updateAt`
+        if (property.name === "updatedAt") {
+            re += ` @updatedAt`
         }
 
         if (property.constraints && property.constraints.includes("unique")) {

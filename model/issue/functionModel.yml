@@ -8,7 +8,7 @@ functions:
     filter:
       done: false
     sort:
-      createAt: DESC
+      createdAt: DESC
     links:
       - label: FinishIssue
         type: entity

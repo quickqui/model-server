@@ -6,8 +6,8 @@ export function defaultProperties(entity: Entity): Entity {
         properties: entity.properties.concat(
             [
                 { name: 'id', type: 'ID', constraints: ['required'] },
-                { name: 'createAt', type: 'DateTime', constraints: ['required'] },
-                { name: 'updateAt', type: 'DateTime', constraints: ['required'] }
+                { name: 'createdAt', type: 'DateTime', constraints: ['required'] },
+                { name: 'updatedAt', type: 'DateTime', constraints: ['required'] }
             ]
         ),
     })
