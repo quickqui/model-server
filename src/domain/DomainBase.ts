@@ -21,7 +21,7 @@ function hasBrief(entity: Entity): boolean {
 }
 
 
-//TODO 是否应该在这里？
+//TODO 是否应该在这里？brief不应该是enities的基本属性，应该是跟function相关的？好像也不是。算是一种表现模型？
 function defaultBrief(entity: Entity): Entity {
     const guesName = ["name", "title", "subject", "description", "code", "text", "content"]
     if (!hasBrief(entity)) {

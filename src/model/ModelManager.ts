@@ -1,16 +1,29 @@
 import { Model } from "./Model";
-import { FolderRepository } from "./repository/FolderRepository";
-import { ModelRepository } from "./repository/ModelRepository";
-import * as _ from "lodash";
-import { domainInherite } from "./domain/DomainBase";
+import { FolderRepository } from "../repository/FolderRepository";
+import { ModelRepository } from "./ModelRepository";
+import { domainInherite } from "../domain/DomainBase";
+import { DomainValidator } from "../domain/DomainValidator";
+import { FunctionValidator } from "../function/FunctionValidator";
+
 export interface Location {
     protocol: string
     resource: any
+}
+export interface ModelValidator {
+    validate(model: Model): ValidatError[]
+}
+export interface ValidatError {
+    message: string
+
 }
 
 export class ModelManager {
     private main: Location
     private model: Promise<Model> | undefined = undefined
+    private validators: ModelValidator[] = [
+        new DomainValidator(),
+        new FunctionValidator()
+    ]
     constructor(main: Location) {
         this.main = main
     }
@@ -18,6 +31,15 @@ export class ModelManager {
     async getModel(): Promise<Model> {
         if (!this.model) {
             const builded = await this.build(this.main)
+            //validate
+            const errs = await this.validators.map((_) => _.validate(builded)).flat()
+            if (errs.length != 0) {
+                //TODO 应该有个更友好的设计。
+                errs.forEach(console.log)
+                throw new Error("model validate failed")
+            };
+
+            //TODO 继承
             const inherited = await domainInherite(builded.domainModel!)
             const finalModel = { ...builded, domainModel: inherited }
             this.model = Promise.resolve(finalModel)

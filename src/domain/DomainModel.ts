@@ -1,4 +1,4 @@
-import { Inheritable } from "../Model";
+import { Inheritable } from "../model/Model";
 
 export interface DomainModel {
     entities: Entity[]

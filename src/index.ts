@@ -6,7 +6,7 @@ import deploy, { insuringProject } from './data/Deploy'
 import { domainToPlanUml, functionsToPlantUml, usecaseToPlantUml } from "./uml/PlantUml";
 import axios from "axios"
 import { toPrismaSchemaString } from "./data/PrimsaDataSchema";
-import { ModelManager } from "./ModelManager";
+import { ModelManager } from "./model/ModelManager";
 
 
 
@@ -95,7 +95,6 @@ app.get("/uml/usecases/:id", async function (req, res, next) {
 })
 //TODO 从容器外获取model文件。
 //比如从 git repository 拉取。
-//TODO 使用prisma 管理api来deploy。
 app.post("/deploy", async function (req, res, next) {
     try {
         const model = await modelManager.getModel()

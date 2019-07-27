@@ -1,7 +1,5 @@
-import { FunctionModel } from "./function/FunctionModel";
-import { DomainModel } from "./domain/DomainModel";
-import { ModelRepository } from "./repository/ModelRepository";
-import { FolderRepository } from "./repository/FolderRepository";
+import { FunctionModel } from "../function/FunctionModel";
+import { DomainModel } from "../domain/DomainModel";
 
 export interface Model {
     domainModel: DomainModel | undefined

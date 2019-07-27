@@ -10,6 +10,7 @@ export function domainToPlanUml(domainModel: DomainModel): string {
 
     function typeMapping(type: any) {
         const scalars = ["string", "boolean"]
+        //TODO 这里有些不对，应该是从prisma生成那边抄过来的。
         if (type.itemType) {
             return `[${type.itemType}!]`
         }
@@ -38,7 +39,6 @@ export function domainToPlanUml(domainModel: DomainModel): string {
         }
     }
     function propertyToString(property: Property): string {
-        //TODO 实现List。
         //TODO 实现required、type、relation的各种组合。
         return `${property.name}: ${typeToString(property)}`
     }

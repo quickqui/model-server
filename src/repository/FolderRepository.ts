@@ -1,15 +1,13 @@
-import { Model } from "../Model";
-import { ModelRepository } from "./ModelRepository";
+import { Model } from "../model/Model";
+import { ModelRepository } from "../model/ModelRepository";
 
 import * as yaml from 'js-yaml'
 
 import * as fs from 'fs'
 import * as readdir from 'recursive-readdir';
 import * as minimatch from 'minimatch'
-import { toPrismaSchemaString } from "../data/PrimsaDataSchema";
-import { domainInherite } from "../domain/DomainBase"
 
-import {Location} from '../ModelManager'
+import { Location } from '../model/ModelManager'
 
 
 export class FolderRepository implements ModelRepository {
@@ -50,7 +48,7 @@ export class FolderRepository implements ModelRepository {
 
     }
 
-    static async build(base: string) :Promise<ModelRepository> {
+    static async build(base: string): Promise<ModelRepository> {
         const { domainModelFiles, functionModelFiles, includeFiles } = await FolderRepository.findFiles(base)
 
 
@@ -65,7 +63,7 @@ export class FolderRepository implements ModelRepository {
                 functions: a.functions.concat(b.functions || [])
 
             }
-        },{functions:[]})
+        }, { functions: [] })
         const dmodels = domainModelFiles.map((fpath) => {
             const dModelSource = fs.readFileSync(fpath).toString()
             return yaml.safeLoad(dModelSource)
@@ -75,25 +73,24 @@ export class FolderRepository implements ModelRepository {
                 entities: a.entities.concat(b.entities || []),
                 enums: (a.enums || []).concat(b.enums || [])
             }
-        },{entities:[],enums:[]})
+        }, { entities: [], enums: [] })
 
         const includes = includeFiles.map((fpath) => {
             return yaml.safeLoad(fs.readFileSync(fpath).toString())["includes"]
         }).flat()
-       
 
-        
 
-        //TODO 应该有个更高的位置。
+
+
 
         return new FolderRepository(base,
             { domainModel: dmodel, functionModel: fmodel }, includes
-            )
+        )
 
     }
 
 
-    
+
 }
 
 
