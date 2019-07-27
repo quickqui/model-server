@@ -62,7 +62,7 @@ export class FolderRepository implements ModelRepository {
             })
         const fmodel = fmodels.reduce((a, b) => {
             return {
-                functions: a.functions.concat(b.functions)
+                functions: a.functions.concat(b.functions || [])
 
             }
         },{functions:[]})
@@ -72,8 +72,8 @@ export class FolderRepository implements ModelRepository {
         })
         const dmodel = dmodels.reduce((a, b) => {
             return {
-                entities: a.entities.concat(b.entities),
-                enums: (a.enums || []).concat(b.enums)
+                entities: a.entities.concat(b.entities || []),
+                enums: (a.enums || []).concat(b.enums || [])
             }
         },{entities:[],enums:[]})
 
@@ -85,10 +85,9 @@ export class FolderRepository implements ModelRepository {
         
 
         //TODO 应该有个更高的位置。
-        const domainModel = domainInherite(dmodel)
 
         return new FolderRepository(base,
-            { domainModel: domainModel, functionModel: fmodel }, includes
+            { domainModel: dmodel, functionModel: fmodel }, includes
             )
 
     }

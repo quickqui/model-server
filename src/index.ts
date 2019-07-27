@@ -2,7 +2,6 @@
 import * as express from "express";
 import * as bodyParser from 'body-parser'
 
-import { repository, refresh } from './repository/ModelRepository';
 import deploy, { insuringProject } from './data/Deploy'
 import { domainToPlanUml, functionsToPlantUml, usecaseToPlantUml } from "./uml/PlantUml";
 import axios from "axios"

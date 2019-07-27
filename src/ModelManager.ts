@@ -2,9 +2,10 @@ import { Model } from "./Model";
 import { FolderRepository } from "./repository/FolderRepository";
 import { ModelRepository } from "./repository/ModelRepository";
 import * as _ from "lodash";
+import { domainInherite } from "./domain/DomainBase";
 export interface Location {
     protocol: string
-    resource: string
+    resource: any
 }
 
 export class ModelManager {
@@ -14,16 +15,19 @@ export class ModelManager {
         this.main = main
     }
 
-    getModel(): Promise<Model> {
-        if (!this.model)
-            this.model = this.build(this.main)
-        return this.model
+    async getModel(): Promise<Model> {
+        if (!this.model) {
+            const builded = await this.build(this.main)
+            const inherited = await domainInherite(builded.domainModel!)
+            const finalModel = { ...builded, domainModel: inherited }
+            this.model = Promise.resolve(finalModel)
+        }
+        return this.model!
     }
 
     refresh(): Promise<Model> {
         this.model = undefined
-        this.model = this.build(this.main)
-        return this.model
+        return this.getModel()
     }
 
 
@@ -50,7 +54,7 @@ export class ModelManager {
 
     private resolve(location: Location): Promise<ModelRepository> {
         if (location.protocol === 'folder') {
-            return FolderRepository.build(__dirname +'/' + location.resource)
+            return FolderRepository.build(__dirname + '/' + location.resource)
         }
         throw new Error("Location not supported (yet)- " + JSON.stringify(location));
     }

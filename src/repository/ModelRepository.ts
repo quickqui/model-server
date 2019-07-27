@@ -7,14 +7,14 @@ export interface ModelRepository {
     includes: Location[]
 }
 
-//TODO 目前没有刷新机制？
+// //TODO 目前没有刷新机制？
 
-export let repository = FolderRepository.build(__dirname+"/../../model")
+// export let repository = FolderRepository.build(__dirname+"/../../model")
 
-export const refresh = ()=> {
-    repository = FolderRepository.build(__dirname+"/../../model")
-}
-
-// export function modelRepository():  Promise<FolderRepository> {
-//    return FolderRepository.build(__dirname+"/../../model")
+// export const refresh = ()=> {
+//     repository = FolderRepository.build(__dirname+"/../../model")
 // }
+
+// // export function modelRepository():  Promise<FolderRepository> {
+// //    return FolderRepository.build(__dirname+"/../../model")
+// // }
