@@ -38,6 +38,7 @@ function defaultBrief(entity: Entity): Entity {
 }
 
 //TODO 统一的继承模型需要再考虑，是merge还是assign？
+
 export function domainInherite(domainModel: DomainModel): DomainModel {
     const entityLevelFuns = _.flow([defaultProperties, defaultBrief])
     return {

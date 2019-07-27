@@ -1,14 +1,19 @@
 import { Model } from "../Model";
 import { FolderRepository } from "./FolderRepository";
+import {Location } from '../ModelManager'
 
 export interface ModelRepository {
-    readonly model: Model
-    readonly dataModelSource: string
+    model: Model
+    includes: Location[]
 }
 
 //TODO 目前没有刷新机制？
 
-export const repository = FolderRepository.build(__dirname+"/../../model")
+export let repository = FolderRepository.build(__dirname+"/../../model")
+
+export const refresh = ()=> {
+    repository = FolderRepository.build(__dirname+"/../../model")
+}
 
 // export function modelRepository():  Promise<FolderRepository> {
 //    return FolderRepository.build(__dirname+"/../../model")

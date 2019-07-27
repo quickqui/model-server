@@ -21,6 +21,10 @@ entities:
         relation:
           to: Role  
           n: many
+      - name: profile
+        relation:
+          to: Profile
+          n: one
     #TODO 考虑这个东西在这里是否合适。
     directives:
       brief: name
@@ -30,4 +34,7 @@ entities:
         type: string
         constraints: 
           - required
-          
+  - name: Profile
+    properties:
+      - name: description
+        type: string

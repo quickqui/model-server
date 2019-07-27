@@ -9,16 +9,19 @@ import * as minimatch from 'minimatch'
 import { toPrismaSchemaString } from "../data/PrimsaDataSchema";
 import { domainInherite } from "../domain/DomainBase"
 
+import {Location} from '../ModelManager'
+
 
 export class FolderRepository implements ModelRepository {
-    base!: string
+    base!: string //TODO 貌似现在用不上？
     model!: Model
-    dataModelSource: string = ''
+    includes: Location[]
 
 
-    static async findFiles(base: string): Promise<{ domainModelFiles: string[], functionModelFiles: string[] }> {
+    static async findFiles(base: string): Promise<{ domainModelFiles: string[], functionModelFiles: string[], includeFiles: string[] }> {
         const functionModelFiles: string[] = []
         const domainModelFiles: string[] = []
+        const includeFiles: string[] = []
         const files = await readdir(base)
         files.forEach(file => {
             //TODO 目录结构、文件名映射到命名空间
@@ -28,24 +31,27 @@ export class FolderRepository implements ModelRepository {
             if (minimatch(file, "**/*.domainModel.*") ||
                 minimatch(file, "**/domainModel.*"))
                 domainModelFiles.push(file)
+            if (minimatch(file, "**/*.include.*") ||
+                minimatch(file, "**/include.*"))
+                includeFiles.push(file)
         });
-        return { domainModelFiles, functionModelFiles }
+        return { domainModelFiles, functionModelFiles, includeFiles }
     }
 
 
 
-    constructor(base: string, model: Model, dataModelSource: string) {
+    constructor(base: string, model: Model, includes: Location[]) {
         if (typeof model === 'undefined') {
             throw new Error('Cannot be called directly');
         }
         this.base = base
         this.model = model
-        this.dataModelSource = dataModelSource
+        this.includes = includes
 
     }
 
-    static async build(base: string) {
-        const { domainModelFiles, functionModelFiles } = await FolderRepository.findFiles(base)
+    static async build(base: string) :Promise<ModelRepository> {
+        const { domainModelFiles, functionModelFiles, includeFiles } = await FolderRepository.findFiles(base)
 
 
         // const dmodel: DataModel = parseFromSchema(dModelsource)
@@ -59,7 +65,7 @@ export class FolderRepository implements ModelRepository {
                 functions: a.functions.concat(b.functions)
 
             }
-        })
+        },{functions:[]})
         const dmodels = domainModelFiles.map((fpath) => {
             const dModelSource = fs.readFileSync(fpath).toString()
             return yaml.safeLoad(dModelSource)
@@ -69,19 +75,26 @@ export class FolderRepository implements ModelRepository {
                 entities: a.entities.concat(b.entities),
                 enums: (a.enums || []).concat(b.enums)
             }
-        })
+        },{entities:[],enums:[]})
 
+        const includes = includeFiles.map((fpath) => {
+            return yaml.safeLoad(fs.readFileSync(fpath).toString())["includes"]
+        }).flat()
+       
+
+        
 
         //TODO 应该有个更高的位置。
         const domainModel = domainInherite(dmodel)
 
-
-        const dModelSource = toPrismaSchemaString(domainModel)
         return new FolderRepository(base,
-            { domainModel: domainModel, functionModel: fmodel }
-            , dModelSource)
+            { domainModel: domainModel, functionModel: fmodel }, includes
+            )
 
     }
+
+
+    
 }
 
 
