@@ -20,7 +20,8 @@ export class FolderRepository implements ModelRepository {
         const functionModelFiles: string[] = []
         const domainModelFiles: string[] = []
         const includeFiles: string[] = []
-        const files = await readdir(base)
+        const abstractBase = base.startsWith("/")? base: process.cwd()+'/'+base
+        const files = await readdir(abstractBase)
         files.forEach(file => {
             //TODO 目录结构、文件名映射到命名空间
             if (minimatch(file, "**/*.functionModel.*") ||

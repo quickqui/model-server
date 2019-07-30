@@ -79,6 +79,8 @@ export function functionsToPlantUml(functionModel: FunctionModel): string {
     functionModel.functions.map((fun) => {
         return `state ${fun.name}`
     }).join("\n")+
+    '\n\n'
+    +
     functionModel.functions.map((fun) => {
         return ( fun.links || []).map((link)=>{
              return `${fun.name} -> ${link.function} : ${link.label}`

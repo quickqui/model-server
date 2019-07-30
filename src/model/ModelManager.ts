@@ -1,5 +1,6 @@
 import { Model } from "./Model";
 import { FolderRepository } from "../repository/FolderRepository";
+import {GithubRepository} from "../repository/GithubRepository";
 import { ModelRepository } from "./ModelRepository";
 import { domainInherite } from "../domain/DomainBase";
 import { DomainValidator } from "../domain/DomainValidator";
@@ -31,6 +32,7 @@ export class ModelManager {
     async getModel(): Promise<Model> {
         if (!this.model) {
             const builded = await this.build(this.main)
+
             //validate
             const errs = await this.validators.map((_) => _.validate(builded)).flat()
             if (errs.length != 0) {
@@ -38,7 +40,6 @@ export class ModelManager {
                 errs.forEach(console.log)
                 throw new Error("model validate failed")
             };
-
             //TODO 继承
             const inherited = await domainInherite(builded.domainModel!)
             const finalModel = { ...builded, domainModel: inherited }
@@ -76,7 +77,10 @@ export class ModelManager {
 
     private resolve(location: Location): Promise<ModelRepository> {
         if (location.protocol === 'folder') {
-            return FolderRepository.build(__dirname + '/' + location.resource)
+            return FolderRepository.build(location.resource)
+        }
+        if(location.protocol === 'github'){
+            return GithubRepository.build(location.resource)
         }
         throw new Error("Location not supported (yet)- " + JSON.stringify(location));
     }

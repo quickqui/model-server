@@ -13,7 +13,7 @@ import { ModelManager } from "./model/ModelManager";
 const app = express();
 const port = 1111; // default port to listen
 
-const modelManager = new ModelManager({ protocol: "folder", resource: "/../model" })
+const modelManager = new ModelManager({ protocol: "folder", resource: process.cwd()+"/model" })
 
 const platumlServiceUrl = 'http://plantuml-service:1608/svg';
 

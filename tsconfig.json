@@ -6,6 +6,6 @@
     "strict": true,
     "lib": ["esnext", "dom"],
     "noImplicitAny":false,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
   }
 }
