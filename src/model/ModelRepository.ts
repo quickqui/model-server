@@ -1,9 +1,6 @@
-import { Model } from "./Model";
-import { FolderRepository } from "../repository/FolderRepository";
-import {Location } from './ModelManager'
+import { ModelSource } from "../source/ModelSource";
 
 export interface ModelRepository {
-    model: Model
-    includes: Location[]
+    source: ModelSource
 }
 

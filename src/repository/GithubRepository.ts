@@ -1,9 +1,8 @@
 import { ModelRepository } from "../model/ModelRepository";
 import { FolderRepository } from "./FolderRepository";
-import * as temp from 'temp'
 import * as githubdown from 'github-download'
-import nanoid = require("nanoid")
 import { mkdirSync, existsSync } from "fs";
+import nanoid = require("nanoid");
 
 export class GithubRepository {
     static async build(github: object): Promise<ModelRepository> {

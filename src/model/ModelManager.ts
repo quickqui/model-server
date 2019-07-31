@@ -1,19 +1,22 @@
 import { Model } from "./Model";
 import { FolderRepository } from "../repository/FolderRepository";
-import {GithubRepository} from "../repository/GithubRepository";
+import { GithubRepository } from "../repository/GithubRepository";
 import { ModelRepository } from "./ModelRepository";
 import { domainInherite } from "../domain/DomainBase";
 import { DomainValidator } from "../domain/DomainValidator";
 import { FunctionValidator } from "../function/FunctionValidator";
-import {pushAll} from '../domain/DomainExtends'
+import { pushAll } from '../domain/DomainExtends'
+import { ModelSource } from "../source/ModelSource";
+import { Location } from '../source/ModelSource'
+import { fileToModel } from "../source/ModelFile";
 
 
-export interface Location {
-    protocol: string
-    resource: any
-}
+
 export interface ModelValidator {
     validate(model: Model): ValidatError[]
+}
+export interface ModelSourceValidator {
+    validate(modelSources: ModelSource[]): ValidatError[]
 }
 export interface ValidatError {
     message: string
@@ -23,10 +26,12 @@ export interface ValidatError {
 export class ModelManager {
     private main: Location
     private model: Promise<Model> | undefined = undefined
+    private modelSources: Promise<ModelSource[]> | undefined = undefined
     private validators: ModelValidator[] = [
         new DomainValidator(),
         new FunctionValidator()
     ]
+    private sourceValidators: ModelSourceValidator[] = []
     constructor(main: Location) {
         this.main = main
     }
@@ -41,13 +46,27 @@ export class ModelManager {
         4. 处理extends
         5. validate第二次
     */
+    async getSource(): Promise<ModelSource[]> {
+        if (!this.modelSources) {
+            const builded = await this.build(this.main)
+            const errs = await this.sourceValidators.map(_ => _.validate(builded)).flat()
+            if (errs.length != 0) {
+                //TODO 应该有个更友好的设计。
+                errs.forEach(console.log)
+                throw new Error("model source validate failed")
+            };
+            this.modelSources = Promise.resolve(builded)
+        }
+        return this.modelSources!
 
+    }
     async getModel(): Promise<Model> {
         if (!this.model) {
-            const builded = await this.build(this.main)
-
-            //validate第一次
-            const errs = await this.validators.map((_) => _.validate(builded)).flat()
+            const source = await this.getSource()
+            const models: Model[]= source.map(modelSource => modelSource.files.map(file =>fileToModel(file))).flat()
+            const merged = models.reduce(this.merge)
+            //validate
+            const errs = await this.validators.map((_) => _.validate(merged)).flat()
             if (errs.length != 0) {
                 //TODO 应该有个更友好的设计。
                 errs.forEach(console.log)
@@ -55,10 +74,10 @@ export class ModelManager {
             };
             //extends 
 
-            const extended = await pushAll(builded.domainModel!)
+            const extended = await pushAll(merged.domainModel!)
 
             const inherited = await domainInherite(extended)
-            const finalModel = { ...builded, domainModel: inherited }
+            const finalModel = { ...merged, domainModel: inherited }
             this.model = Promise.resolve(finalModel)
         }
         return this.model!
@@ -82,12 +101,12 @@ export class ModelManager {
         }
     }
 
-    private async build(location: Location): Promise<Model> {
+    private async build(location: Location): Promise<ModelSource[]> {
         const repository = await this.resolve(location)
-        const includes = repository.includes
-        const includeModel = await Promise.all(includes.map((include) => this.build(include)))
-        const model = await repository.model
-        return includeModel.reduce(this.merge, model)
+        const includes = repository.source.includes
+        const includeModel: ModelSource[][] = await Promise.all(includes.map((include) => this.build(include)))
+        const modelSource = await repository.source
+        return includeModel.reduce((a, b) => a.concat(b), [modelSource])
     }
 
 
@@ -95,7 +114,7 @@ export class ModelManager {
         if (location.protocol === 'folder') {
             return FolderRepository.build(location.resource)
         }
-        if(location.protocol === 'github'){
+        if (location.protocol === 'github') {
             return GithubRepository.build(location.resource)
         }
         throw new Error("Location not supported (yet)- " + JSON.stringify(location));

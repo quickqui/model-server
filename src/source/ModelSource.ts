@@ -1,7 +1,11 @@
 import { ModelFile } from "./ModelFile";
 
+export interface Location {
+    protocol: string
+    resource: any
+}
 
-interface ModelSource { 
+export interface ModelSource { 
     files: ModelFile[]; 
-    includes: ModelSource[]
+    includes: Location[];
 }

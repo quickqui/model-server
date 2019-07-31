@@ -1,4 +1,3 @@
-import { Model } from "../model/Model";
 import { ModelRepository } from "../model/ModelRepository";
 
 import * as yaml from 'js-yaml'
@@ -7,20 +6,21 @@ import * as fs from 'fs'
 import * as readdir from 'recursive-readdir';
 import * as minimatch from 'minimatch'
 
-import { Location } from '../model/ModelManager'
+import { ModelSource } from "../source/ModelSource";
+import * as R from "ramda";
+import { ModelFile } from "../source/ModelFile";
 
 
 export class FolderRepository implements ModelRepository {
     base!: string //TODO 貌似现在用不上？
-    model!: Model
-    includes: Location[]
+    source!: ModelSource
 
 
     static async findFiles(base: string): Promise<{ domainModelFiles: string[], functionModelFiles: string[], includeFiles: string[] }> {
         const functionModelFiles: string[] = []
         const domainModelFiles: string[] = []
         const includeFiles: string[] = []
-        const abstractBase = base.startsWith("/")? base: process.cwd()+'/'+base
+        const abstractBase = base.startsWith("/") ? base : process.cwd() + '/' + base
         const files = await readdir(abstractBase)
         files.forEach(file => {
             //TODO 目录结构、文件名映射到命名空间
@@ -39,13 +39,12 @@ export class FolderRepository implements ModelRepository {
 
 
 
-    constructor(base: string, model: Model, includes: Location[]) {
-        if (typeof model === 'undefined') {
+    constructor(base: string, source: ModelSource) {
+        if (R.isNil(source)) {
             throw new Error('Cannot be called directly');
         }
         this.base = base
-        this.model = model
-        this.includes = includes
+        this.source = source
 
     }
 
@@ -54,27 +53,34 @@ export class FolderRepository implements ModelRepository {
 
 
         // const dmodel: DataModel = parseFromSchema(dModelsource)
-        const fmodels =
+        const fmodels: ModelFile[] =
             functionModelFiles.map((fpath) => {
                 const fModelSource = fs.readFileSync(fpath).toString()
-                return yaml.safeLoad(fModelSource)
+                return {
+                    type: 'function',
+                    //TODO 如果必要，区分path和filename
+                    fileName: fpath,
+                    path: fpath,
+                    modelObject: yaml.safeLoad(fModelSource)
+                }
             })
-        const fmodel = fmodels.reduce((a, b) => {
-            return {
-                functions: a.functions.concat(b.functions || [])
+        // const fmodel = fmodels.reduce((a, b) => {
+        //     return {
+        //         functions: a.functions.concat(b.functions || [])
 
-            }
-        }, { functions: [] })
+        //     }
+        // }, { functions: [] })
         const dmodels = domainModelFiles.map((fpath) => {
             const dModelSource = fs.readFileSync(fpath).toString()
-            return yaml.safeLoad(dModelSource)
-        })
-        const dmodel = dmodels.reduce((a, b) => {
             return {
-                entities: a.entities.concat(b.entities || []),
-                enums: (a.enums || []).concat(b.enums || [])
+                type: 'domain',
+                //TODO 如果必要，区分path和filename
+                fileName: fpath,
+                path: fpath,
+                modelObject: yaml.safeLoad(dModelSource)
             }
-        }, { entities: [], enums: [] })
+        })
+
 
         const includes = includeFiles.map((fpath) => {
             return yaml.safeLoad(fs.readFileSync(fpath).toString())["includes"]
@@ -85,7 +91,10 @@ export class FolderRepository implements ModelRepository {
 
 
         return new FolderRepository(base,
-            { domainModel: dmodel, functionModel: fmodel }, includes
+            {
+                files: dmodels.concat(fmodels),
+                includes
+            }
         )
 
     }
