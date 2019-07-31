@@ -5,9 +5,10 @@ export interface Location {
     resource: any
 }
 
-export interface ModelSource { 
+export interface ModelSource {
+    name: string
     description: string
-    files: ModelFile[]; 
+    files: ModelFile[];
     includes: Location[];
     includeSources: ModelSource[];
 }

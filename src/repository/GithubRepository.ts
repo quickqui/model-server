@@ -26,6 +26,6 @@ export class GithubRepository {
                 })
         })
         console.log(downloade)
-        return FolderRepository.build(tempfile + '/' + (github as any).dir,`github source - ${(github as any).url}/${(github as any).dir}`)
+        return FolderRepository.build(tempfile + '/' + (github as any).dir,`github source - ${(github as any).url}/${(github as any).dir}`,(github as any).dir)
     }
 }

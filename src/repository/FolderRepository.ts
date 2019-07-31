@@ -3,6 +3,7 @@ import { ModelRepository } from "../model/ModelRepository";
 import * as yaml from 'js-yaml'
 
 import * as fs from 'fs'
+import * as path from 'path'
 import * as readdir from 'recursive-readdir';
 import * as minimatch from 'minimatch'
 
@@ -48,7 +49,7 @@ export class FolderRepository implements ModelRepository {
 
     }
 
-    static async build(base: string, description?: string): Promise<ModelRepository> {
+    static async build(base: string, description?: string,name?:string): Promise<ModelRepository> {
         const { domainModelFiles, functionModelFiles, includeFiles } = await FolderRepository.findFiles(base)
 
 
@@ -91,7 +92,7 @@ export class FolderRepository implements ModelRepository {
 
 
         return new FolderRepository(base,
-            {
+            {   name: name || path.basename(base),
                 description: description || `folder source - ${base}`,
                 files: dmodels.concat(fmodels),
                 includes,

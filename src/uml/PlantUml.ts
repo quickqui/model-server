@@ -2,22 +2,22 @@ import { ModelSource } from "../source/ModelSource";
 import * as R from "ramda";
 import { Model } from "../model/Model";
 
-function getIndex<T>(source: T, all: T[]): number | undefined {
-    return all.indexOf(source)
-}
+// function getIndex<T>(source: T, all: T[]): number | undefined {
+//     return all.indexOf(source)
+// }
 
 
 export function sourceToPlantUml(sources: ModelSource[]): string {
     return `@startuml\n\n` +
         R.addIndex(R.map)((source, index) => {
-            return `object ${index}{
-            description = "${JSON.stringify((source as any).description)}"
+            return `object ${(source as any).name} {
+            description = "${(source as any).description}"
         }`
         }, sources).join("\n")
         + "\n\n" +
         sources.map(source =>
             source.includeSources.map(included =>
-                `${getIndex(source, sources)} --> ${getIndex(included, sources)} : include`))
+                `${(source as any).name} --> ${(included as any).name} : include`))
             .flat().join("\n")
         +
         `\n\n@enduml\n`
