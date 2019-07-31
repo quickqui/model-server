@@ -6,6 +6,8 @@ export interface Location {
 }
 
 export interface ModelSource { 
+    description: string
     files: ModelFile[]; 
     includes: Location[];
+    includeSources: ModelSource[];
 }

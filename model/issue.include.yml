@@ -1,5 +1,5 @@
 includes: 
   - protocol: github
     resource: 
-      url: https://https://github.com/quickqui/models.git
-      dir: /user
+      url: https://github.com/quickqui/models.git
+      dir: user

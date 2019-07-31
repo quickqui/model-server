@@ -3,10 +3,13 @@ import * as express from "express";
 import * as bodyParser from 'body-parser'
 
 import deploy, { insuringProject } from './data/Deploy'
-import { domainToPlanUml, functionsToPlantUml, usecaseToPlantUml } from "./uml/PlantUml";
+import { domainToPlanUml } from "./uml/domainToPlanUml";
+import { functionsToPlantUml } from "./uml/functionsToPlantUml";
+import { usecaseToPlantUml } from "./uml/usecaseToPlantUml";
 import axios from "axios"
 import { toPrismaSchemaString } from "./data/PrimsaDataSchema";
 import { ModelManager } from "./model/ModelManager";
+import { sourceToPlantUml, modelToPlantUml } from "./uml/PlantUml";
 
 
 
@@ -31,8 +34,39 @@ app.get("/model", async function (req, res, next) {
 
 app.post("/model/refresh", async function (req, res, next) {
     try {
-        const model = await modelManager.refresh()
+        modelManager.refresh()
         res.status(201).send("refresh success")
+    } catch (e) {
+        next(e);
+    }
+})
+
+
+app.get("/uml/sources/:id", async function (req, res, next){
+
+    try {
+        const model = await modelManager.getSource()
+        if (model) {
+            const startUML = sourceToPlantUml(model)
+            const rep = await axios.post(platumlServiceUrl, startUML)
+            res.status(200).json({ id: 1, source: rep.data })
+        } else
+            res.status(404).send("no model source")
+    } catch (e) {
+        next(e);
+    }
+})
+
+app.get("/uml/models/:id", async function (req, res, next){
+
+    try {
+        const model = await modelManager.getOriginalModel()
+        if (model) {
+            const startUML = modelToPlantUml(model)
+            const rep = await axios.post(platumlServiceUrl, startUML)
+            res.status(200).json({ id: 1, source: rep.data })
+        } else
+            res.status(404).send("no model")
     } catch (e) {
         next(e);
     }

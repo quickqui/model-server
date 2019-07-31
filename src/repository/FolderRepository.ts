@@ -48,7 +48,7 @@ export class FolderRepository implements ModelRepository {
 
     }
 
-    static async build(base: string): Promise<ModelRepository> {
+    static async build(base: string, description?: string): Promise<ModelRepository> {
         const { domainModelFiles, functionModelFiles, includeFiles } = await FolderRepository.findFiles(base)
 
 
@@ -92,8 +92,10 @@ export class FolderRepository implements ModelRepository {
 
         return new FolderRepository(base,
             {
+                description: description || `folder source - ${base}`,
                 files: dmodels.concat(fmodels),
-                includes
+                includes,
+                includeSources:[]
             }
         )
 

@@ -27,6 +27,7 @@ export class ModelManager {
     private main: Location
     private model: Promise<Model> | undefined = undefined
     private modelSources: Promise<ModelSource[]> | undefined = undefined
+    private originalModel: Promise<Model> | undefined = undefined
     private validators: ModelValidator[] = [
         new DomainValidator(),
         new FunctionValidator()
@@ -60,10 +61,11 @@ export class ModelManager {
         return this.modelSources!
 
     }
-    async getModel(): Promise<Model> {
-        if (!this.model) {
+
+    async getOriginalModel(): Promise<Model> {
+        if (!this.originalModel) {
             const source = await this.getSource()
-            const models: Model[]= source.map(modelSource => modelSource.files.map(file =>fileToModel(file))).flat()
+            const models: Model[] = source.map(modelSource => modelSource.files.map(file => fileToModel(file))).flat()
             const merged = models.reduce(this.merge)
             //validate
             const errs = await this.validators.map((_) => _.validate(merged)).flat()
@@ -72,8 +74,16 @@ export class ModelManager {
                 errs.forEach(console.log)
                 throw new Error("model validate failed")
             };
-            //extends 
+            this.originalModel = Promise.resolve(merged)
+        }
+        return this.originalModel!
+    }
 
+    async getModel(): Promise<Model> {
+        if (!this.model) {
+
+            //extends 
+            const merged = await this.getOriginalModel()
             const extended = await pushAll(merged.domainModel!)
 
             const inherited = await domainInherite(extended)
@@ -83,9 +93,10 @@ export class ModelManager {
         return this.model!
     }
 
-    refresh(): Promise<Model> {
+    refresh() {
+        this.modelSources = undefined
+        this.originalModel = undefined
         this.model = undefined
-        return this.getModel()
     }
 
 
@@ -106,6 +117,7 @@ export class ModelManager {
         const includes = repository.source.includes
         const includeModel: ModelSource[][] = await Promise.all(includes.map((include) => this.build(include)))
         const modelSource = await repository.source
+        modelSource.includeSources = includeModel.map(_ => _[0])
         return includeModel.reduce((a, b) => a.concat(b), [modelSource])
     }
 
