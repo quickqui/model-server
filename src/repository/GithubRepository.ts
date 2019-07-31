@@ -3,15 +3,19 @@ import { FolderRepository } from "./FolderRepository";
 import * as temp from 'temp'
 import * as githubdown from 'github-download'
 import nanoid = require("nanoid")
-import { mkdirSync } from "fs";
+import { mkdirSync, existsSync } from "fs";
 
 export class GithubRepository {
     static async build(github: object): Promise<ModelRepository> {
         //downlao from github to temp_dir
-        mkdirSync('/usr/app/tmp')
+        const tempdir = ('/usr/app/tmp')
+
+        if (!existsSync(tempdir)){
+            mkdirSync(tempdir);
+        }
         //TODO 需要在更广泛的docker环境测试。
         //TODO tempfile 可能需要remove
-        const tempfile = '/usr/app/tmp/' + nanoid()
+        const tempfile = tempdir+'/' + nanoid()
         const downloade = await new Promise((resolve, reject) => {
             githubdown((github as any).url, tempfile)
                 .on('error', function (err) {

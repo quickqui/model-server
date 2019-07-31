@@ -42,3 +42,8 @@ entities:
         relation:
           to: User
           n: one
+  - name: NewProfile 
+    extends: Profile #推模式，往Profile里面增加特征。extends这个词是否恰当待讨论。
+    properties:
+      - name: code
+        type: String

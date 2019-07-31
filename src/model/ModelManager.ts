@@ -5,6 +5,8 @@ import { ModelRepository } from "./ModelRepository";
 import { domainInherite } from "../domain/DomainBase";
 import { DomainValidator } from "../domain/DomainValidator";
 import { FunctionValidator } from "../function/FunctionValidator";
+import {pushAll} from '../domain/DomainExtends'
+
 
 export interface Location {
     protocol: string
@@ -29,19 +31,33 @@ export class ModelManager {
         this.main = main
     }
 
+
+    //TODO model 处理的几个阶段 - 
+    /*
+        1. 处理include
+        2. 从所有文件中获取（所有的entity、enum、function）
+        2.5 得到model本身的结构图。（reposiotry、文件、namesapce、include、extends）
+        3. validation第一次
+        4. 处理extends
+        5. validate第二次
+    */
+
     async getModel(): Promise<Model> {
         if (!this.model) {
             const builded = await this.build(this.main)
 
-            //validate
+            //validate第一次
             const errs = await this.validators.map((_) => _.validate(builded)).flat()
             if (errs.length != 0) {
                 //TODO 应该有个更友好的设计。
                 errs.forEach(console.log)
                 throw new Error("model validate failed")
             };
-            //TODO 继承
-            const inherited = await domainInherite(builded.domainModel!)
+            //extends 
+
+            const extended = await pushAll(builded.domainModel!)
+
+            const inherited = await domainInherite(extended)
             const finalModel = { ...builded, domainModel: inherited }
             this.model = Promise.resolve(finalModel)
         }

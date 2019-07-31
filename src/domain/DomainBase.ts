@@ -1,5 +1,6 @@
 import { Entity, DomainModel } from "./DomainModel";
 import * as _ from 'lodash'
+import * as R from 'ramda'
 
 export function defaultProperties(entity: Entity): Entity {
     return _.assign(entity, {
@@ -37,10 +38,12 @@ function defaultBrief(entity: Entity): Entity {
     return entity
 }
 
+
+
 //TODO 统一的继承模型需要再考虑，是merge还是assign？
 
 export function domainInherite(domainModel: DomainModel): DomainModel {
-    const entityLevelFuns = _.flow([defaultProperties, defaultBrief])
+    const entityLevelFuns = _.flow( [defaultProperties, defaultBrief])
     return {
         entities: domainModel.entities.map((entity) => entityLevelFuns(entity)),
         enums: domainModel.enums
