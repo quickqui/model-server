@@ -1,7 +1,7 @@
 functions:
   - name: NotDone
     menuPath: Issue/NotDone
-    icon: done
+    icon: Done
     base:
       resource: Issue
       function: list
@@ -15,4 +15,12 @@ functions:
         function: FinishIssue
     roles:
       - User
-      - Admin
+  - name: NotDoneCount
+    icon: Done
+    base:
+      resource: Issue
+      function: iconCard
+    filter:
+      done: false
+    roles:
+      - User
