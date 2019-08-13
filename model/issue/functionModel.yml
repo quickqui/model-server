@@ -15,6 +15,18 @@ functions:
         function: FinishIssue
     roles:
       - User
+  - name: Finished
+    menuPath: Issue/Finished
+    icon: Done
+    base:
+      resource: Issue
+      function: list
+    filter:
+      done: true
+    sort:
+      createdAt: DESC
+    roles:
+      - User
   - name: NotDoneCount
     icon: Done
     base:
