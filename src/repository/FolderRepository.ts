@@ -17,9 +17,10 @@ export class FolderRepository implements ModelRepository {
     source!: ModelSource
 
 
-    static async findFiles(base: string): Promise<{ domainModelFiles: string[], functionModelFiles: string[], includeFiles: string[] }> {
+    static async findFiles(base: string): Promise<{ domainModelFiles: string[], functionModelFiles: string[], presentationModelFiles: string[], includeFiles: string[] }> {
         const functionModelFiles: string[] = []
         const domainModelFiles: string[] = []
+        const presentationModelFiles: string[] = []
         const includeFiles: string[] = []
         const abstractBase = base.startsWith("/") ? base : process.cwd() + '/' + base
         const files = await readdir(abstractBase)
@@ -31,11 +32,14 @@ export class FolderRepository implements ModelRepository {
             if (minimatch(file, "**/*.domainModel.*") ||
                 minimatch(file, "**/domainModel.*"))
                 domainModelFiles.push(file)
+            if (minimatch(file, "**/*.presentationModel.*") ||
+                minimatch(file, "**/presentationModel.*"))
+                presentationModelFiles.push(file)
             if (minimatch(file, "**/*.include.*") ||
                 minimatch(file, "**/include.*"))
                 includeFiles.push(file)
         });
-        return { domainModelFiles, functionModelFiles, includeFiles }
+        return { domainModelFiles, functionModelFiles, presentationModelFiles, includeFiles }
     }
 
 
@@ -49,8 +53,8 @@ export class FolderRepository implements ModelRepository {
 
     }
 
-    static async build(base: string, description?: string,name?:string): Promise<ModelRepository> {
-        const { domainModelFiles, functionModelFiles, includeFiles } = await FolderRepository.findFiles(base)
+    static async build(base: string, description?: string, name?: string): Promise<ModelRepository> {
+        const { domainModelFiles, functionModelFiles, presentationModelFiles, includeFiles } = await FolderRepository.findFiles(base)
 
 
         // const dmodel: DataModel = parseFromSchema(dModelsource)
@@ -65,12 +69,7 @@ export class FolderRepository implements ModelRepository {
                     modelObject: yaml.safeLoad(fModelSource)
                 }
             })
-        // const fmodel = fmodels.reduce((a, b) => {
-        //     return {
-        //         functions: a.functions.concat(b.functions || [])
 
-        //     }
-        // }, { functions: [] })
         const dmodels = domainModelFiles.map((fpath) => {
             const dModelSource = fs.readFileSync(fpath).toString()
             return {
@@ -79,6 +78,17 @@ export class FolderRepository implements ModelRepository {
                 fileName: fpath,
                 path: fpath,
                 modelObject: yaml.safeLoad(dModelSource)
+            }
+        })
+
+        const pmodels = presentationModelFiles.map((ppath) => {
+            const pModelSource = fs.readFileSync(ppath).toString()
+            return {
+                type: 'presentation',
+                //TODO 如果必要，区分path和filename
+                fileName: ppath,
+                path: ppath,
+                modelObject: yaml.safeLoad(pModelSource)
             }
         })
 
@@ -92,11 +102,12 @@ export class FolderRepository implements ModelRepository {
 
 
         return new FolderRepository(base,
-            {   name: name || path.basename(base),
+            {
+                name: name || path.basename(base),
                 description: description || `folder source - ${base}`,
-                files: dmodels.concat(fmodels),
+                files: dmodels.concat(fmodels).concat(pmodels),
                 includes,
-                includeSources:[]
+                includeSources: []
             }
         )
 

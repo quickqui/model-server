@@ -7,8 +7,8 @@ import nanoid = require("nanoid");
 export class GithubRepository {
     static async build(github: object): Promise<ModelRepository> {
         //downlao from github to temp_dir
-        const tempdir = ('/usr/app/tmp')
-
+        // const tempdir = ('/usr/app/tmp')
+        const tempdir = ('./temp')
         if (!existsSync(tempdir)){
             mkdirSync(tempdir);
         }

@@ -3,3 +3,7 @@ includes:
     resource: 
       url: https://github.com/quickqui/models.git
       dir: user
+  # - protocol: library
+  #   resource: 
+  #     type: npm
+  #     name: 

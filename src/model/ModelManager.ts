@@ -9,6 +9,8 @@ import { pushAll } from '../domain/DomainExtends'
 import { ModelSource } from "../source/ModelSource";
 import { Location } from '../source/ModelSource'
 import { fileToModel } from "../source/ModelFile";
+import { PresentationValidator } from "../presentation/PresentationValidator";
+import { LibarayRepository } from "../repository/LibarayRepository";
 
 
 
@@ -30,7 +32,8 @@ export class ModelManager {
     private originalModel: Promise<Model> | undefined = undefined
     private validators: ModelValidator[] = [
         new DomainValidator(),
-        new FunctionValidator()
+        new FunctionValidator(),
+        new PresentationValidator()
     ]
     private sourceValidators: ModelSourceValidator[] = []
     constructor(main: Location) {
@@ -82,10 +85,11 @@ export class ModelManager {
     async getModel(): Promise<Model> {
         if (!this.model) {
 
-            //extends 
             const merged = await this.getOriginalModel()
-            const extended = await pushAll(merged.domainModel!)
 
+            //extends 
+            const extended = await pushAll(merged.domainModel!)
+            //TODO inherited 和 extended 分别做什么事情？
             const inherited = await domainInherite(extended)
             const finalModel = { ...merged, domainModel: inherited }
             this.model = Promise.resolve(finalModel)
@@ -108,7 +112,10 @@ export class ModelManager {
             },
             functionModel: {
                 functions: (a.functionModel && a.functionModel.functions || []).concat(b.functionModel && b.functionModel.functions || [])
-            }
+            },
+            presentationModel: {
+                presentatins: (a.presentationModel && a.presentationModel.presentatins || []).concat(b.presentationModel && b.presentationModel.presentatins || [])
+            } 
         }
     }
 
@@ -128,6 +135,9 @@ export class ModelManager {
         }
         if (location.protocol === 'github') {
             return GithubRepository.build(location.resource)
+        }
+        if(location.protocol === 'libaray'){
+            return LibarayRepository.build(location.resource)
         }
         throw new Error("Location not supported (yet)- " + JSON.stringify(location));
     }

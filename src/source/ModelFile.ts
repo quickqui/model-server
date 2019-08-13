@@ -17,6 +17,9 @@ export function fileToModel(file: ModelFile): Model {
             },
             functionModel: {
                 functions: file.modelObject.functions || []
+            },
+            presentationModel: {
+                presentatins: []
             }
         }
     }
@@ -28,6 +31,23 @@ export function fileToModel(file: ModelFile): Model {
             },
             functionModel: {
                 functions: []
+            },
+            presentationModel: {
+                presentatins: []
+            }
+        }
+    }
+    if (file.type === 'presentation') {
+        return {
+            domainModel: {
+                entities: []
+                , enums: [],
+            },
+            functionModel: {
+                functions: []
+            },
+            presentationModel: {
+                presentatins: file.modelObject.presentatins || []
             }
         }
     }
