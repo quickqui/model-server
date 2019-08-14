@@ -4,6 +4,7 @@ import * as githubdown from 'github-download'
 import { mkdirSync, existsSync } from "fs";
 import nanoid = require("nanoid");
 
+//使用libarayRepository可以替代这个。
 export class GithubRepository {
     static async build(github: object): Promise<ModelRepository> {
         //downlao from github to temp_dir

@@ -1,9 +1,10 @@
 includes: 
-  - protocol: github
-    resource: 
-      url: https://github.com/quickqui/models.git
-      dir: user
-  # - protocol: library
+  # - protocol: github
   #   resource: 
-  #     type: npm
-  #     name: 
+  #     url: https://github.com/quickqui/models.git
+  #     dir: user
+  - protocol: libaray
+    resource: 
+      type: npm # package.json里面要定义
+      module: models
+      dir: user
