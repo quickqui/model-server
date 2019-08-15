@@ -1,6 +1,0 @@
-presentatins:
-  - name: issueDefault
-    resource: Issue
-    context: default
-    brief: title
-    display: ["-updatedAt"]

@@ -10,13 +10,15 @@ import axios from "axios"
 import { toPrismaSchemaString } from "./data/PrimsaDataSchema";
 import { ModelManager } from "./model/ModelManager";
 import { sourceToPlantUml, modelToPlantUml } from "./uml/PlantUml";
+import { env } from "./Env";
 
 
 
 const app = express();
 const port = 1111; // default port to listen
 
-const modelManager = new ModelManager({ protocol: "folder", resource: process.cwd()+"/model" })
+const modelProjectDir = env.modelProjectDir
+const modelManager = new ModelManager({ protocol: "folder", resource: modelProjectDir+"/model" })
 
 const platumlServiceUrl = 'http://plantuml-service:1608/svg';
 
