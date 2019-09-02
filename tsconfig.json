@@ -7,5 +7,6 @@
     "lib": ["esnext", "dom"],
     "noImplicitAny":false,
     "moduleResolution": "node",
+    "allowSyntheticDefaultImports":true
   }
 }

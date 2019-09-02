@@ -2,7 +2,7 @@ import { Inheritable } from "../model/Model";
 
 export interface DomainModel {
     entities: Entity[]
-    enums?: Enum[]
+    enums: Enum[]
 }
 
 export interface Entity extends Inheritable {
@@ -28,7 +28,7 @@ export interface List {
     itemType: string
 }
 
-interface Enum {
+export interface Enum {
     values: string[]
 }
 

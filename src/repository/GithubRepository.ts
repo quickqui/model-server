@@ -2,9 +2,10 @@ import { ModelRepository } from "../model/ModelRepository";
 import { FolderRepository } from "./FolderRepository";
 import * as githubdown from 'github-download'
 import { mkdirSync, existsSync } from "fs";
-import nanoid = require("nanoid");
+import nanoid from "nanoid";
 
 //使用libarayRepository可以替代这个。
+//TODO 可能不需要了。
 export class GithubRepository {
     static async build(github: object): Promise<ModelRepository> {
         //downlao from github to temp_dir

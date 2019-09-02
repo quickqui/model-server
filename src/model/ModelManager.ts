@@ -3,14 +3,11 @@ import { FolderRepository } from "../repository/FolderRepository";
 import { GithubRepository } from "../repository/GithubRepository";
 import { ModelRepository } from "./ModelRepository";
 import { domainInherite } from "../domain/DomainBase";
-import { DomainValidator } from "../domain/DomainValidator";
-import { FunctionValidator } from "../function/FunctionValidator";
 import { pushAll } from '../domain/DomainExtends'
 import { ModelSource } from "../source/ModelSource";
 import { Location } from '../source/ModelSource'
-import { fileToModel } from "../source/ModelFile";
-import { PresentationValidator } from "../presentation/PresentationValidator";
 import { LibarayRepository } from "../repository/LibarayRepository";
+import { defines } from "./ModelDefine";
 
 
 
@@ -30,11 +27,6 @@ export class ModelManager {
     private model: Promise<Model> | undefined = undefined
     private modelSources: Promise<ModelSource[]> | undefined = undefined
     private originalModel: Promise<Model> | undefined = undefined
-    private validators: ModelValidator[] = [
-        new DomainValidator(),
-        new FunctionValidator(),
-        new PresentationValidator()
-    ]
     private sourceValidators: ModelSourceValidator[] = []
     constructor(main: Location) {
         this.main = main
@@ -44,7 +36,7 @@ export class ModelManager {
     //TODO model 处理的几个阶段 - 
     /*
         1. 处理include
-        2. 从所有文件中获取（所有的entity、enum、function）
+        2. 从所有文件中获取,merge
         2.5 得到model本身的结构图。（reposiotry、文件、namesapce、include、extends）
         3. validation第一次
         4. 处理extends
@@ -65,19 +57,31 @@ export class ModelManager {
 
     }
 
+    emptyModel: Model = {
+        domainModel: undefined,
+        functionModel: undefined
+    }
+
     async getOriginalModel(): Promise<Model> {
         if (!this.originalModel) {
             const source = await this.getSource()
-            const models: Model[] = source.map(modelSource => modelSource.files.map(file => fileToModel(file))).flat()
-            const merged = models.reduce(this.merge)
-            //validate
-            const errs = await this.validators.map((_) => _.validate(merged)).flat()
-            if (errs.length != 0) {
-                //TODO 应该有个更友好的设计。
-                errs.forEach(console.log)
-                throw new Error("model validate failed")
-            };
-            this.originalModel = Promise.resolve(merged)
+            let model = this.emptyModel
+            source.forEach(modelSource => modelSource.files.forEach(file => {
+                const define = defines.find(def => def.name === file.type)
+                if (define) {
+                    model = define.whenMerge(model, define.toPiece(file.modelObject))
+                } else {
+                    throw new Error("no define find")
+                }
+            }))
+            // //validate
+            // const errs = await this.validators.map((_) => _.validate(model)).flat()
+            // if (errs.length != 0) {
+            //     //TODO 应该有个更友好的设计。
+            //     errs.forEach(console.log)
+            //     throw new Error("model validate failed")
+            // };
+            this.originalModel = Promise.resolve(model)
         }
         return this.originalModel!
     }
@@ -104,20 +108,18 @@ export class ModelManager {
     }
 
 
-    private merge(a: Model, b: Model): Model {
-        return {
-            domainModel: {
-                entities: (a.domainModel && a.domainModel.entities || []).concat(b.domainModel && b.domainModel.entities || []),
-                enums: (a.domainModel && a.domainModel.enums || []).concat(b.domainModel && b.domainModel.enums || [])
-            },
-            functionModel: {
-                functions: (a.functionModel && a.functionModel.functions || []).concat(b.functionModel && b.functionModel.functions || [])
-            },
-            presentationModel: {
-                presentatins: (a.presentationModel && a.presentationModel.presentatins || []).concat(b.presentationModel && b.presentationModel.presentatins || [])
-            } 
-        }
-    }
+    // private merge(a: Model, b: Model): Model {
+    //     return {
+    //         domainModel: {
+    //             entities: (a.domainModel && a.domainModel.entities || []).concat(b.domainModel && b.domainModel.entities || []),
+    //             enums: (a.domainModel && a.domainModel.enums || []).concat(b.domainModel && b.domainModel.enums || [])
+    //         },
+    //         functionModel: {
+    //             functions: (a.functionModel && a.functionModel.functions || []).concat(b.functionModel && b.functionModel.functions || [])
+    //         },
+
+    //     }
+    // }
 
     private async build(location: Location): Promise<ModelSource[]> {
         const repository = await this.resolve(location)
@@ -136,7 +138,7 @@ export class ModelManager {
         if (location.protocol === 'github') {
             return GithubRepository.build(location.resource)
         }
-        if(location.protocol === 'libaray'){
+        if (location.protocol === 'libaray') {
             return LibarayRepository.build(location.resource)
         }
         throw new Error("Location not supported (yet)- " + JSON.stringify(location));

@@ -5,7 +5,6 @@ import { PresentationModel } from "../presentation/PresentationModel";
 export interface Model {
     domainModel: DomainModel | undefined
     functionModel: FunctionModel | undefined
-    presentationModel: PresentationModel | undefined
     
 }
 

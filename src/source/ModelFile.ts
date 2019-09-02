@@ -18,9 +18,7 @@ export function fileToModel(file: ModelFile): Model {
             functionModel: {
                 functions: file.modelObject.functions || []
             },
-            presentationModel: {
-                presentatins: []
-            }
+
         }
     }
     if (file.type === 'domain') {
@@ -32,9 +30,7 @@ export function fileToModel(file: ModelFile): Model {
             functionModel: {
                 functions: []
             },
-            presentationModel: {
-                presentatins: []
-            }
+
         }
     }
     if (file.type === 'presentation') {
@@ -46,9 +42,7 @@ export function fileToModel(file: ModelFile): Model {
             functionModel: {
                 functions: []
             },
-            presentationModel: {
-                presentatins: file.modelObject.presentatins || []
-            }
+
         }
     }
     throw new Error('Unknown file type - ' + file.type)

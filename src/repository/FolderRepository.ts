@@ -10,6 +10,8 @@ import * as minimatch from 'minimatch'
 import { ModelSource } from "../source/ModelSource";
 import * as R from "ramda";
 import { ModelFile } from "../source/ModelFile";
+import { defines } from "../model/ModelDefine";
+import * as lo from 'lodash'
 
 
 export class FolderRepository implements ModelRepository {
@@ -17,29 +19,23 @@ export class FolderRepository implements ModelRepository {
     source!: ModelSource
 
 
-    static async findFiles(base: string): Promise<{ domainModelFiles: string[], functionModelFiles: string[], presentationModelFiles: string[], includeFiles: string[] }> {
-        const functionModelFiles: string[] = []
-        const domainModelFiles: string[] = []
-        const presentationModelFiles: string[] = []
+    static async findFiles(base: string): Promise<{ modelFiles: Map<string, string[]>, includeFiles: string[] }> {
+        const modelFiles: Map<string, string[]> = new Map<string, string[]>();
         const includeFiles: string[] = []
         const abstractBase = base.startsWith("/") ? base : process.cwd() + '/' + base
         const files = await readdir(abstractBase)
         files.forEach(file => {
-            //TODO 目录结构、文件名映射到命名空间
-            if (minimatch(file, "**/*.functionModel.*") ||
-                minimatch(file, "**/functionModel.*"))
-                functionModelFiles.push(file)
-            if (minimatch(file, "**/*.domainModel.*") ||
-                minimatch(file, "**/domainModel.*"))
-                domainModelFiles.push(file)
-            if (minimatch(file, "**/*.presentationModel.*") ||
-                minimatch(file, "**/presentationModel.*"))
-                presentationModelFiles.push(file)
+            const define = defines.find(_ => minimatch(file, _.filePattern))
+            if (define) {
+                const f = lo(modelFiles).get(define.name, [])
+                modelFiles.set(define.name, lo(f).concat(file).value())
+            }
             if (minimatch(file, "**/*.include.*") ||
                 minimatch(file, "**/include.*"))
                 includeFiles.push(file)
+
         });
-        return { domainModelFiles, functionModelFiles, presentationModelFiles, includeFiles }
+        return { modelFiles, includeFiles }
     }
 
 
@@ -53,44 +49,33 @@ export class FolderRepository implements ModelRepository {
 
     }
 
+
+
     static async build(base: string, description?: string, name?: string): Promise<ModelRepository> {
-        const { domainModelFiles, functionModelFiles, presentationModelFiles, includeFiles } = await FolderRepository.findFiles(base)
 
-
-        // const dmodel: DataModel = parseFromSchema(dModelsource)
-        const fmodels: ModelFile[] =
-            functionModelFiles.map((fpath) => {
+        const { modelFiles, includeFiles } = await FolderRepository.findFiles(base)
+        function mapToObj(inputMap) {
+            let obj = {};
+        
+            inputMap.forEach(function(value, key){
+                obj[key] = value
+            });
+        
+            return obj;
+        }
+        const models: ModelFile[] = lo(mapToObj(modelFiles)).map((value: string[], key: string) => {
+            return value.map(fpath => {
                 const fModelSource = fs.readFileSync(fpath).toString()
                 return {
-                    type: 'function',
+                    type: key,
                     //TODO 如果必要，区分path和filename
                     fileName: fpath,
                     path: fpath,
                     modelObject: yaml.safeLoad(fModelSource)
-                }
-            })
+                } as ModelFile
+            }) as ModelFile[]
+        }).flatten().value()
 
-        const dmodels = domainModelFiles.map((fpath) => {
-            const dModelSource = fs.readFileSync(fpath).toString()
-            return {
-                type: 'domain',
-                //TODO 如果必要，区分path和filename
-                fileName: fpath,
-                path: fpath,
-                modelObject: yaml.safeLoad(dModelSource)
-            }
-        })
-
-        const pmodels = presentationModelFiles.map((ppath) => {
-            const pModelSource = fs.readFileSync(ppath).toString()
-            return {
-                type: 'presentation',
-                //TODO 如果必要，区分path和filename
-                fileName: ppath,
-                path: ppath,
-                modelObject: yaml.safeLoad(pModelSource)
-            }
-        })
 
 
         const includes = includeFiles.map((fpath) => {
@@ -105,7 +90,7 @@ export class FolderRepository implements ModelRepository {
             {
                 name: name || path.basename(base),
                 description: description || `folder source - ${base}`,
-                files: dmodels.concat(fmodels).concat(pmodels),
+                files: models,
                 includes,
                 includeSources: []
             }
