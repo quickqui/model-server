@@ -1,4 +1,4 @@
-import { ModelDefine } from "../model/ModelDefine";
+import { ModelDefine, ModelWeaveLog } from "../model/ModelDefine";
 import { Model } from "../model/Model";
 import * as _ from "lodash";
 import { Function } from "./FunctionModel"
@@ -12,12 +12,12 @@ export class FunctionDefine implements ModelDefine<Functions> {
     toPiece(source: object): Functions {
         return source as Functions
     }
-    whenCut(model: Model, piece: Functions): Model {
+    weave(model: Model): [Model, ModelWeaveLog[]] {
         //TODO push extends here
         //目前暂时没有extends的function？
-        return model
+        return [model, []]
     }
-    whenMerge(model: Model, piece: Functions): Model {
+    merge(model: Model, piece: Functions): Model {
         return {
             ...model,
             functionModel: {
@@ -26,7 +26,10 @@ export class FunctionDefine implements ModelDefine<Functions> {
             }
         }
     }
-    validate(model:Model):ValidatError[]{
+    validateAfterMerge(model: Model): ValidatError[] {
+        return []
+    }
+    validateAfterWeave(model: Model): ValidatError[] {
         return []
     }
 }

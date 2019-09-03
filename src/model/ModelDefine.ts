@@ -5,15 +5,20 @@ import { ValidatError } from "./ModelManager";
 
 
 export interface ModelDefine<PT> {
-    name:string
+    name: string
     filePattern: string;
-    toPiece(source:object):PT
-    whenMerge(model: Model, piece: PT): Model
-    whenCut(model: Model, piece: PT): Model
-    validate(model:Model):ValidatError[]
+    toPiece(source: object): PT
+    merge(model: Model, piece: PT): Model
+    weave(model: Model): [Model, ModelWeaveLog[]]
+    validateAfterMerge(model: Model): ValidatError[]
+    validateAfterWeave(model: Model): ValidatError[]
 }
 
 export const defines: ModelDefine<unknown>[] = [
     new DomainDefine(),
     new FunctionDefine()
 ]
+
+export interface ModelWeaveLog {
+    logItem: string
+}

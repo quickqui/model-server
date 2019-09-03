@@ -1,8 +1,9 @@
-import { ModelDefine } from "../model/ModelDefine";
+import { ModelDefine, ModelWeaveLog } from "../model/ModelDefine";
 import { Model } from "../model/Model";
 import { Entity, Enum } from "./DomainModel";
 import * as _ from "lodash";
 import { ValidatError } from "../model/ModelManager";
+import { pushAll as pushAllExtends } from "./DomainExtends";
 
 interface DomainPiece {
     entities: Entity[];
@@ -16,11 +17,12 @@ export class DomainDefine implements ModelDefine<DomainPiece> {
     toPiece(source: object): DomainPiece {
         return source as DomainPiece
     }
-    whenCut(model: Model, piece: DomainPiece): Model {
-        //TODO push extends here
-        return model
+    weave(model: Model): [Model, ModelWeaveLog[]] {
+        const [domainModel, logs] = pushAllExtends(
+            model.domainModel!, [])
+        return [{ ...model, domainModel }, logs]
     }
-    whenMerge(model: Model, piece: DomainPiece): Model {
+    merge(model: Model, piece: DomainPiece): Model {
         return {
             ...model,
             domainModel: {
@@ -30,7 +32,10 @@ export class DomainDefine implements ModelDefine<DomainPiece> {
             }
         }
     }
-    validate(model:Model):ValidatError[]{
+    validateAfterMerge(model: Model): ValidatError[] {
+        return []
+    }
+    validateAfterWeave(model: Model): ValidatError[] {
         return []
     }
 

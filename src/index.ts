@@ -34,6 +34,17 @@ app.get("/model", async function (req, res, next) {
     }
 });
 
+
+app.get("/logs", async function (req, res, next) {
+    try {
+        const model = await modelManager.getModel()
+        const logs = await modelManager.getWeaveLogs()
+        res.status(200).json(logs)
+    } catch (e) {
+        next(e);
+    }
+});
+
 app.post("/model/refresh", async function (req, res, next) {
     try {
         modelManager.refresh()

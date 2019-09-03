@@ -7,7 +7,8 @@ import { pushAll } from '../domain/DomainExtends'
 import { ModelSource } from "../source/ModelSource";
 import { Location } from '../source/ModelSource'
 import { LibarayRepository } from "../repository/LibarayRepository";
-import { defines } from "./ModelDefine";
+import { defines, ModelWeaveLog } from "./ModelDefine";
+import * as _ from "lodash";
 
 
 
@@ -27,6 +28,8 @@ export class ModelManager {
     private model: Promise<Model> | undefined = undefined
     private modelSources: Promise<ModelSource[]> | undefined = undefined
     private originalModel: Promise<Model> | undefined = undefined
+    private woveModel: Promise<Model> | undefined = undefined
+    private woveLogs: ModelWeaveLog[] = []
     private sourceValidators: ModelSourceValidator[] = []
     constructor(main: Location) {
         this.main = main
@@ -69,7 +72,7 @@ export class ModelManager {
             source.forEach(modelSource => modelSource.files.forEach(file => {
                 const define = defines.find(def => def.name === file.type)
                 if (define) {
-                    model = define.whenMerge(model, define.toPiece(file.modelObject))
+                    model = define.merge(model, define.toPiece(file.modelObject))
                 } else {
                     throw new Error("no define find")
                 }
@@ -86,40 +89,48 @@ export class ModelManager {
         return this.originalModel!
     }
 
+    async getWovenModel(): Promise<Model> {
+        if (!this.woveModel) {
+            const originalModel = await this.getOriginalModel()
+            let model = originalModel
+
+            defines.forEach(define => {
+                const [mo, log] = define.weave(model)
+                this.woveLogs = _(this.woveLogs).concat(log).value()
+                model = mo
+            })
+            this.woveModel = Promise.resolve(model)
+        }
+        return this.woveModel!
+    }
+
+
     async getModel(): Promise<Model> {
         if (!this.model) {
 
             const merged = await this.getOriginalModel()
 
             //extends 
-            const extended = await pushAll(merged.domainModel!)
+            const woved = await this.getWovenModel()
             //TODO inherited 和 extended 分别做什么事情？
-            const inherited = await domainInherite(extended)
+            const inherited = await domainInherite(woved!.domainModel!)
             const finalModel = { ...merged, domainModel: inherited }
             this.model = Promise.resolve(finalModel)
         }
         return this.model!
     }
 
+    getWeaveLogs(): ModelWeaveLog[]{
+        return this.woveLogs
+    }
+
     refresh() {
         this.modelSources = undefined
         this.originalModel = undefined
+        this.woveModel = undefined
+        this.woveLogs = []
         this.model = undefined
     }
-
-
-    // private merge(a: Model, b: Model): Model {
-    //     return {
-    //         domainModel: {
-    //             entities: (a.domainModel && a.domainModel.entities || []).concat(b.domainModel && b.domainModel.entities || []),
-    //             enums: (a.domainModel && a.domainModel.enums || []).concat(b.domainModel && b.domainModel.enums || [])
-    //         },
-    //         functionModel: {
-    //             functions: (a.functionModel && a.functionModel.functions || []).concat(b.functionModel && b.functionModel.functions || [])
-    //         },
-
-    //     }
-    // }
 
     private async build(location: Location): Promise<ModelSource[]> {
         const repository = await this.resolve(location)
