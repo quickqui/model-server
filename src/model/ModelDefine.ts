@@ -1,7 +1,8 @@
 import { Model } from "./Model";
-import { DomainDefine } from "../domain/DomainDefine";
+import { DomainDefine, InjectedWeaver } from "../domain/DomainDefine";
 import { FunctionDefine } from "../function/FunctionDefine";
 import { ValidatError } from "./ModelManager";
+import { weavers  as domainWeavers} from "../domain/DomainDefine";
 
 
 export interface ModelDefine<PT> {
@@ -9,14 +10,25 @@ export interface ModelDefine<PT> {
     filePattern: string;
     toPiece(source: object): PT
     merge(model: Model, piece: PT): Model
-    weave(model: Model): [Model, ModelWeaveLog[]]
+   
     validateAfterMerge(model: Model): ValidatError[]
     validateAfterWeave(model: Model): ValidatError[]
 }
 
+
+export interface ModelWeaver  { 
+    name: string
+    weave(model: Model): [Model, ModelWeaveLog[]]
+}
+
+
 export const defines: ModelDefine<unknown>[] = [
     new DomainDefine(),
     new FunctionDefine()
+]
+
+export const weavers : ModelWeaver[] = [
+    ...domainWeavers
 ]
 
 export interface ModelWeaveLog {

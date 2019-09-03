@@ -7,7 +7,7 @@ import { pushAll } from '../domain/DomainExtends'
 import { ModelSource } from "../source/ModelSource";
 import { Location } from '../source/ModelSource'
 import { LibarayRepository } from "../repository/LibarayRepository";
-import { defines, ModelWeaveLog } from "./ModelDefine";
+import { defines, ModelWeaveLog, weavers } from "./ModelDefine";
 import * as _ from "lodash";
 
 
@@ -94,8 +94,8 @@ export class ModelManager {
             const originalModel = await this.getOriginalModel()
             let model = originalModel
 
-            defines.forEach(define => {
-                const [mo, log] = define.weave(model)
+            weavers.forEach(weaver => {
+                const [mo, log] = weaver.weave(model)
                 this.woveLogs = _(this.woveLogs).concat(log).value()
                 model = mo
             })
