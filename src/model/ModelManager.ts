@@ -7,7 +7,7 @@ import { pushAll } from '../domain/DomainExtends'
 import { ModelSource } from "../source/ModelSource";
 import { Location } from '../source/ModelSource'
 import { LibarayRepository } from "../repository/LibarayRepository";
-import { defines, ModelWeaveLog, weavers } from "./ModelDefine";
+import { defines, ModelWeaveLog, weavers, Log } from "./ModelDefine";
 import * as _ from "lodash";
 
 
@@ -18,9 +18,13 @@ export interface ModelValidator {
 export interface ModelSourceValidator {
     validate(modelSources: ModelSource[]): ValidatError[]
 }
-export interface ValidatError {
-    message: string
-
+export class ValidatError implements Log{
+    category: string = 'validate'
+    level:string = 'error'
+    message:string =''
+    constructor(message:string){
+        this.message = message
+    }
 }
 
 export class ModelManager {

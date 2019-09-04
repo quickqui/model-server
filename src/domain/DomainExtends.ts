@@ -47,7 +47,7 @@ function push(model: DomainModel, entity: Entity): [DomainModel, ModelWeaveLog] 
             return [{
                 entities: model.entities.filter(R.complement(R.propEq('name', entity.name))),
                 enums: model.enums
-            }, { logItem: `Injected - form entity/${entity.name} to entity/${target.name}` }]
+            }, new ModelWeaveLog(  `Injected - form entity/${entity.name} to entity/${target.name}` )]
         } else {
             throw new Error(`no such entity - ${target}`)
         }

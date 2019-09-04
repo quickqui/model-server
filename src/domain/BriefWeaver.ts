@@ -7,7 +7,7 @@ import { forEachEntity } from "./DomainExtends";
 export class BriefWeaver implements ModelWeaver {
     name = 'brief'
     weave(model: Model): [Model, ModelWeaveLog[]] {
-        return forEachEntity(model,defaultBrief);
+        return forEachEntity(model, defaultBrief);
     }
 }
 
@@ -39,7 +39,7 @@ function defaultBrief(entity: Entity): [Entity, ModelWeaveLog?] {
                     brief: guessedName
                 }
             }
-                , { logItem: `brief guessed for entity/${entity.name}- ${guessedName}` }]
+                , new ModelWeaveLog(`brief guessed for entity/${entity.name}- ${guessedName}`)]
         } else
             return [entity, undefined]
     }
