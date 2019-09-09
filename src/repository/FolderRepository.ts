@@ -12,6 +12,7 @@ import * as R from "ramda";
 import { ModelFile } from "../source/ModelFile";
 import { defines } from "../model/ModelDefine";
 import * as lo from 'lodash'
+import { dynamicDefineFilePattern, dynamicDefine } from "../dynamic/Define";
 
 
 export class FolderRepository implements ModelRepository {
@@ -24,6 +25,14 @@ export class FolderRepository implements ModelRepository {
         const includeFiles: string[] = []
         const abstractBase = base.startsWith("/") ? base : process.cwd() + '/' + base
         const files = await readdir(abstractBase)
+
+
+        files.forEach(file => {
+            if (minimatch(file, dynamicDefineFilePattern)) {
+                dynamicDefine(file)
+            }
+        })
+
         files.forEach(file => {
             const define = defines.find(_ => minimatch(file, _.filePattern))
             if (define) {
@@ -56,23 +65,28 @@ export class FolderRepository implements ModelRepository {
         const { modelFiles, includeFiles } = await FolderRepository.findFiles(base)
         function mapToObj(inputMap) {
             let obj = {};
-        
-            inputMap.forEach(function(value, key){
+
+            inputMap.forEach(function (value, key) {
                 obj[key] = value
             });
-        
+
             return obj;
         }
         const models: ModelFile[] = lo(mapToObj(modelFiles)).map((value: string[], key: string) => {
             return value.map(fpath => {
-                const fModelSource = fs.readFileSync(fpath).toString()
-                return {
-                    type: key,
-                    //TODO 如果必要，区分path和filename
-                    fileName: fpath,
-                    path: fpath,
-                    modelObject: yaml.safeLoad(fModelSource)
-                } as ModelFile
+                if (fpath.endsWith(".yml") || fpath.endsWith(".yaml")) {
+                    //TODO 支持别的序列化格式。但对机制来说都是object。
+                    const fModelSource = fs.readFileSync(fpath).toString()
+                    return {
+                        type: key,
+                        //TODO 如果必要，区分path和filename
+                        fileName: fpath,
+                        path: fpath,
+                        modelObject: yaml.safeLoad(fModelSource)
+                    } as ModelFile
+                } else {
+                    throw new Error("not support file type - ${fpath}")
+                }
             }) as ModelFile[]
         }).flatten().value()
 
