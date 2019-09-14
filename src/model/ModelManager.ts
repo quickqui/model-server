@@ -2,8 +2,6 @@ import { Model } from "./Model";
 import { FolderRepository } from "../repository/FolderRepository";
 import { GithubRepository } from "../repository/GithubRepository";
 import { ModelRepository } from "./ModelRepository";
-import { domainInherite } from "../domain/DomainBase";
-import { pushAll } from '../domain/DomainExtends'
 import { ModelSource } from "../source/ModelSource";
 import { Location } from '../source/ModelSource'
 import { LibarayRepository } from "../repository/LibarayRepository";
@@ -114,12 +112,9 @@ export class ModelManager {
 
             const merged = await this.getOriginalModel()
 
-            //extends 
             const woved = await this.getWovenModel()
-            //TODO inherited 和 extended 分别做什么事情？
-            const inherited = await domainInherite(woved!.domainModel!)
-            const finalModel = { ...merged, domainModel: inherited }
-            this.model = Promise.resolve(finalModel)
+            
+            this.model = Promise.resolve(woved)
         }
         return this.model!
     }

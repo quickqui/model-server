@@ -19,13 +19,15 @@ export const dynamicDefineFilePattern: string = "**/**.define.js"
 
 
 export function dynamicDefine(filePath: string): void {
+    //TODO 目前只支持js。
     const obj = require(filePath);
-    console.dir(obj)
+    // console.dir(obj)
     const result = DefineType.decode(obj);
     ThrowReporter.report(result);
+    //TODO either这里怎么使用是有问题的，为啥不能map/forEach？
     if (isRight(result)) {
-        console.log("right")
         defines.push((result as Right<any>).right)
-        console.log(defines)
+    }else{
+        throw new Error(`can not import js as define - ${filePath}`)
     }
 }
