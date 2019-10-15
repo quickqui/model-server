@@ -2,3 +2,6 @@ GET http://localhost:1111/model
 
 ###
 GET http://localhost:1111/logs
+
+###
+POST http://localhost:1111/model/refresh

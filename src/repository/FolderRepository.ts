@@ -36,7 +36,8 @@ export class FolderRepository implements ModelRepository {
         files.forEach(file => {
             const define = defines.find(_ => minimatch(file, _.filePattern))
             if (define) {
-                const f = lo(modelFiles).get(define.name, [])
+                //TODO 没有get(key,default)方法？
+                const f = modelFiles.get(define.name)?modelFiles.get(define.name):[]
                 modelFiles.set(define.name, lo(f).concat(file).value())
             }
             if (minimatch(file, "**/*.include.*") ||
