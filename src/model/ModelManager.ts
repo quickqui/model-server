@@ -4,7 +4,7 @@ import { GithubRepository } from "../repository/GithubRepository";
 import { ModelRepository } from "./ModelRepository";
 import { ModelSource } from "../source/ModelSource";
 import { Location } from '../source/ModelSource'
-import { LibarayRepository } from "../repository/LibarayRepository";
+import { LibraryRepository } from "../repository/LibarayRepository";
 import { defines, ModelWeaveLog, weavers, Log } from "./ModelDefine";
 import * as _ from "lodash";
 
@@ -41,6 +41,7 @@ export class ModelManager {
     //TODO model 处理的几个阶段 - 
     /*
         1. 处理include
+        1.5 处理defines //因为defines可能以include定义
         2. 从所有文件中获取,merge
         2.5 得到model本身的结构图。（reposiotry、文件、namesapce、include、extends）
         3. validation第一次
@@ -149,7 +150,7 @@ export class ModelManager {
             return GithubRepository.build(location.resource)
         }
         if (location.protocol === 'libaray') {
-            return LibarayRepository.build(location.resource)
+            return LibraryRepository.build(location.resource)
         }
         throw new Error("Location not supported (yet)- " + JSON.stringify(location));
     }

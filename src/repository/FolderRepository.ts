@@ -27,17 +27,20 @@ export class FolderRepository implements ModelRepository {
         const files = await readdir(abstractBase)
 
 
-        files.forEach(file => {
-            if (minimatch(file, dynamicDefineFilePattern)) {
-                dynamicDefine(file)
-            }
-        })
+        const defs = await Promise.all( files.filter(file => {
+            return (minimatch(file, dynamicDefineFilePattern))
+        }).map(df => {
+            return dynamicDefine(df)
+        }))
+        
+       
+        if(defs){
 
         files.forEach(file => {
             const define = defines.find(_ => minimatch(file, _.filePattern))
             if (define) {
                 //TODO 没有get(key,default)方法？
-                const f = modelFiles.get(define.name)?modelFiles.get(define.name):[]
+                const f = modelFiles.get(define.name) ? modelFiles.get(define.name) : []
                 modelFiles.set(define.name, lo(f).concat(file).value())
             }
             if (minimatch(file, "**/*.include.*") ||
@@ -46,6 +49,9 @@ export class FolderRepository implements ModelRepository {
 
         });
         return { modelFiles, includeFiles }
+    }else {
+        throw new Error("what happened")
+    }
     }
 
 
@@ -74,27 +80,27 @@ export class FolderRepository implements ModelRepository {
             return obj;
         }
         const models: ModelFile[] = lo(mapToObj(modelFiles)).map((value: string[], key: string) => {
-            return value.map(fpath => {
-                if (fpath.endsWith(".yml") || fpath.endsWith(".yaml")) {
+            return value.map(fPath => {
+                if (fPath.endsWith(".yml") || fPath.endsWith(".yaml")) {
                     //TODO 支持别的序列化格式。但对机制来说都是object。
-                    const fModelSource = fs.readFileSync(fpath).toString()
+                    const fModelSource = fs.readFileSync(fPath).toString()
                     return {
                         type: key,
                         //TODO 如果必要，区分path和filename
-                        fileName: fpath,
-                        path: fpath,
+                        fileName: fPath,
+                        path: fPath,
                         modelObject: yaml.safeLoad(fModelSource)
                     } as ModelFile
                 } else {
-                    throw new Error("not support file type - ${fpath}")
+                    throw new Error(`not support file type - ${fPath}`)
                 }
             }) as ModelFile[]
         }).flatten().value()
 
 
 
-        const includes = includeFiles.map((fpath) => {
-            return yaml.safeLoad(fs.readFileSync(fpath).toString())["includes"]
+        const includes = includeFiles.map((fPath) => {
+            return yaml.safeLoad(fs.readFileSync(fPath).toString())["includes"]
         }).flat()
 
 

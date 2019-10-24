@@ -5,9 +5,21 @@ import { ValidatError } from "./ModelManager";
 import { weavers as domainWeavers } from "../domain/DomainDefine";
 
 
+export interface ModelDefineConfig {
+    name:string;
+    filePattern:string;
+    extend:Promise<any>;
+}
+
+export interface ModelWeaverConfig {
+    name:string;
+    extend:Promise<ModelWeaver>;
+}
+
+
 export interface ModelDefine<PT> {
-    name: string
-    filePattern: string;
+    name:string;
+    filePattern:string;
     toPiece(source: object): PT
     merge(model: Model, piece: PT): Model
 
