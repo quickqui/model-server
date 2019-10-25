@@ -1,8 +1,7 @@
 import { Model } from "./Model";
-import { DomainDefine, InjectedWeaver } from "../domain/DomainDefine";
+import { DomainDefine } from "../domain/DomainDefine";
 import { FunctionDefine } from "../function/FunctionDefine";
-import { ValidatError } from "./ModelManager";
-import { weavers as domainWeavers } from "../domain/DomainDefine";
+import { ValidateError } from "./ModelManager";
 
 
 export interface ModelDefineConfig {
@@ -11,10 +10,7 @@ export interface ModelDefineConfig {
     extend:Promise<any>;
 }
 
-export interface ModelWeaverConfig {
-    name:string;
-    extend:Promise<ModelWeaver>;
-}
+
 
 
 export interface ModelDefine<PT> {
@@ -23,14 +19,8 @@ export interface ModelDefine<PT> {
     toPiece(source: object): PT
     merge(model: Model, piece: PT): Model
 
-    validateAfterMerge(model: Model): ValidatError[]
-    validateAfterWeave(model: Model): ValidatError[]
-}
-
-
-export interface ModelWeaver {
-    name: string
-    weave(model: Model): [Model, ModelWeaveLog[]]
+    validateAfterMerge(model: Model): ValidateError[]
+    validateAfterWeave(model: Model): ValidateError[]
 }
 
 
@@ -39,20 +29,9 @@ export const defines: ModelDefine<unknown>[] = [
     new FunctionDefine()
 ]
 
-export const weavers: ModelWeaver[] = [
-    ...domainWeavers
-]
 
 export interface Log {
     level: string
     message: string
     category: string
-}
-export class ModelWeaveLog implements Log {
-    level: string = 'info'
-    category: string = 'model-weave'
-    message: string = ''
-    constructor(message: string) {
-        this.message = message
-    }
 }

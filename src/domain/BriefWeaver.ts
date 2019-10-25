@@ -1,4 +1,4 @@
-import { ModelDefine, ModelWeaver, ModelWeaveLog } from "../model/ModelDefine";
+import { ModelWeaver, ModelWeaveLog } from "../model/ModelWeaver";
 import { Entity } from "./DomainModel";
 import { Model } from "../model/Model";
 import * as _ from "lodash";

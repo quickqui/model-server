@@ -1,8 +1,8 @@
 import { DomainModel, Entity } from "./DomainModel";
 import * as R from "ramda";
-import { ModelWeaveLog } from "../model/ModelDefine";
 import * as _ from "lodash";
 import { Model } from "../model/Model";
+import { ModelWeaveLog } from "../model/ModelWeaver";
 
 
 

@@ -1,26 +1,29 @@
 import { Model } from "./Model";
 import { FolderRepository } from "../repository/FolderRepository";
-import { GithubRepository } from "../repository/GithubRepository";
 import { ModelRepository } from "./ModelRepository";
 import { ModelSource } from "../source/ModelSource";
 import { Location } from '../source/ModelSource'
-import { LibraryRepository } from "../repository/LibarayRepository";
-import { defines, ModelWeaveLog, weavers, Log } from "./ModelDefine";
+import { LibraryRepository } from "../repository/LibraryRepository";
+import { defines, Log, ModelDefine } from "./ModelDefine";
 import * as _ from "lodash";
+import { weavers, ModelWeaveLog } from "./ModelWeaver";
+import { dynamicDefineFilePattern, dynamicDefine } from "../dynamic/Define";
+import * as minimatch from 'minimatch';
+import { ModelFile } from "../source/ModelFile";
 
 
 
 export interface ModelValidator {
-    validate(model: Model): ValidatError[]
+    validate(model: Model): ValidateError[]
 }
 export interface ModelSourceValidator {
-    validate(modelSources: ModelSource[]): ValidatError[]
+    validate(modelSources: ModelSource[]): ValidateError[]
 }
-export class ValidatError implements Log{
+export class ValidateError implements Log {
     category: string = 'validate'
-    level:string = 'error'
-    message:string =''
-    constructor(message:string){
+    level: string = 'error'
+    message: string = ''
+    constructor(message: string) {
         this.message = message
     }
 }
@@ -40,12 +43,12 @@ export class ModelManager {
 
     //TODO model 处理的几个阶段 - 
     /*
-        1. 处理include
-        1.5 处理defines //因为defines可能以include定义
-        2. 从所有文件中获取,merge
-        2.5 得到model本身的结构图。（reposiotry、文件、namesapce、include、extends）
+        1. 处理include，所有文件展开，包括可能不认识的。
+        1. 处理defines //因为defines可能以include定义
+        2. 从所有文件中获取, merge
+            2.5 得到model本身的结构图。（repository、文件、nameSpace、include、extends）
         3. validation第一次
-        4. 处理extends
+        4. wave
         5. validate第二次
     */
     async getSource(): Promise<ModelSource[]> {
@@ -70,16 +73,40 @@ export class ModelManager {
 
     async getOriginalModel(): Promise<Model> {
         if (!this.originalModel) {
-            const source = await this.getSource()
+            const sources: ModelSource[] = await this.getSource()
             let model = this.emptyModel
-            source.forEach(modelSource => modelSource.files.forEach(file => {
-                const define = defines.find(def => def.name === file.type)
-                if (define) {
-                    model = define.merge(model, define.toPiece(file.modelObject))
-                } else {
-                    throw new Error("no define find")
-                }
-            }))
+
+            //find defines
+
+
+            const defineFiles: ModelFile[] = sources.map((modelSource) => {
+                return modelSource.files.filter((file) => {
+                    return minimatch(file.path, dynamicDefineFilePattern)
+                })
+            }).flat()
+
+            const dynamicDefines: ModelDefine<unknown>[] = (await Promise.all(defineFiles.map(
+                async (file) => Promise.all(await dynamicDefine(file.fileName))))).flat()
+
+            dynamicDefines.forEach((d: ModelDefine<unknown>) => defines.push(d))
+            sources.forEach(
+                modelSource => modelSource.files.forEach(
+                    file => {
+                        const define = defines.find(
+                            (def: ModelDefine<unknown>) => {
+                                return minimatch(file.fileName, def.filePattern)
+                            })
+                        if (define) {
+                            model = define.merge(model, define.toPiece(file.modelObject))
+                        } else if (minimatch(file.fileName, dynamicDefineFilePattern)) {
+                            //do nothing
+                        } else {
+                            throw new Error(`no define find - ${[file.fileName]}`)
+                        }
+                    }
+
+                )
+            )
             // //validate
             // const errs = await this.validators.map((_) => _.validate(model)).flat()
             // if (errs.length != 0) {
@@ -111,16 +138,16 @@ export class ModelManager {
     async getModel(): Promise<Model> {
         if (!this.model) {
 
-            const merged = await this.getOriginalModel()
 
-            const woved = await this.getWovenModel()
-            
-            this.model = Promise.resolve(woved)
+            const woven = await this.getWovenModel()
+
+
+            this.model = Promise.resolve(woven)
         }
         return this.model!
     }
 
-    getWeaveLogs(): ModelWeaveLog[]{
+    getWeaveLogs(): ModelWeaveLog[] {
         return this.woveLogs
     }
 
@@ -134,11 +161,11 @@ export class ModelManager {
 
     private async build(location: Location): Promise<ModelSource[]> {
         const repository = await this.resolve(location)
-        const includes = repository.source.includes
+        const includes: Location[] = repository.source.includes
         const includeModel: ModelSource[][] = await Promise.all(includes.map((include) => this.build(include)))
-        const modelSource = await repository.source
+        const modelSource = repository.source
         modelSource.includeSources = includeModel.map(_ => _[0])
-        return includeModel.reduce((a, b) => a.concat(b), [modelSource])
+        return includeModel.reduce((a, b) => a.concat(b), [modelSource]) //第一个source是自己，后面的source是include的
     }
 
 
@@ -146,10 +173,8 @@ export class ModelManager {
         if (location.protocol === 'folder') {
             return FolderRepository.build(location.resource)
         }
-        if (location.protocol === 'github') {
-            return GithubRepository.build(location.resource)
-        }
-        if (location.protocol === 'libaray') {
+
+        if (location.protocol === 'library') {
             return LibraryRepository.build(location.resource)
         }
         throw new Error("Location not supported (yet)- " + JSON.stringify(location));

@@ -1,4 +1,4 @@
-import { InjectedWeaver } from "./DomainDefine";
+import { InjectedWeaver } from "./InjectedWeaver";
 import { BriefWeaver } from "./BriefWeaver";
 
 export interface DomainModel {

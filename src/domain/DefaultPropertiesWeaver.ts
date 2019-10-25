@@ -1,10 +1,11 @@
 import { Entity } from "./DomainModel";
 import * as _ from "lodash";
-import { ModelWeaver, ModelWeaveLog } from "../model/ModelDefine";
+import { ModelWeaveLog } from "../model/ModelWeaver";
+import { ModelWeaver } from "../model/ModelWeaver";
 import { Model } from "../model/Model";
 import { forEachEntity } from "./DomainExtends";
 
-//TODO 这个weaver不一定是domain基础级的。
+//TODO 这个weaver不一定是domain基础级的。不是数据库就一定要这个。
 export class DefaultPropertiesWeaver implements ModelWeaver {
     name = "defaultProperties";
     weave(model: Model): [Model, ModelWeaveLog[]] {

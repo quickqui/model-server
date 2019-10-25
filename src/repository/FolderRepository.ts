@@ -20,38 +20,41 @@ export class FolderRepository implements ModelRepository {
     source!: ModelSource
 
 
-    static async findFiles(base: string): Promise<{ modelFiles: Map<string, string[]>, includeFiles: string[] }> {
-        const modelFiles: Map<string, string[]> = new Map<string, string[]>();
+    static async findFiles(base: string): Promise<{ modelFiles: string[], includeFiles: string[] }> {
+        const modelFiles: string[] = [];
         const includeFiles: string[] = []
         const abstractBase = base.startsWith("/") ? base : process.cwd() + '/' + base
         const files = await readdir(abstractBase)
 
 
-        const defs = await Promise.all( files.filter(file => {
-            return (minimatch(file, dynamicDefineFilePattern))
-        }).map(df => {
-            return dynamicDefine(df)
-        }))
-        
-       
-        if(defs){
+        // const defs = await Promise.all( files.filter(file => {
+        //     return (minimatch(file, dynamicDefineFilePattern))
+        // }).map(df => {
+        //     return dynamicDefine(df)
+        // }))
+
+
+        // if(defs){
 
         files.forEach(file => {
-            const define = defines.find(_ => minimatch(file, _.filePattern))
-            if (define) {
-                //TODO 没有get(key,default)方法？
-                const f = modelFiles.get(define.name) ? modelFiles.get(define.name) : []
-                modelFiles.set(define.name, lo(f).concat(file).value())
-            }
-            if (minimatch(file, "**/*.include.*") ||
-                minimatch(file, "**/include.*"))
-                includeFiles.push(file)
+            // const define = defines.find(_ => minimatch(file, _.filePattern))
+            // if (define) {
+            //TODO 没有get(key,default)方法？
+            // const f = modelFiles.get(define.name) ? modelFiles.get(define.name) : []
 
+            // }
+            if (minimatch(file, "**/*.include.*") ||
+                minimatch(file, "**/include.*")) {
+                includeFiles.push(file)
+            }  else {
+                modelFiles.push(file) 
+                //! define file包括在files里面。
+            }
         });
         return { modelFiles, includeFiles }
-    }else {
-        throw new Error("what happened")
-    }
+        // }else {
+        //     throw new Error("what happened")
+        // }
     }
 
 
@@ -70,32 +73,20 @@ export class FolderRepository implements ModelRepository {
     static async build(base: string, description?: string, name?: string): Promise<ModelRepository> {
 
         const { modelFiles, includeFiles } = await FolderRepository.findFiles(base)
-        function mapToObj(inputMap) {
-            let obj = {};
 
-            inputMap.forEach(function (value, key) {
-                obj[key] = value
-            });
-
-            return obj;
-        }
-        const models: ModelFile[] = lo(mapToObj(modelFiles)).map((value: string[], key: string) => {
-            return value.map(fPath => {
-                if (fPath.endsWith(".yml") || fPath.endsWith(".yaml")) {
-                    //TODO 支持别的序列化格式。但对机制来说都是object。
-                    const fModelSource = fs.readFileSync(fPath).toString()
-                    return {
-                        type: key,
-                        //TODO 如果必要，区分path和filename
-                        fileName: fPath,
-                        path: fPath,
-                        modelObject: yaml.safeLoad(fModelSource)
-                    } as ModelFile
-                } else {
-                    throw new Error(`not support file type - ${fPath}`)
-                }
-            }) as ModelFile[]
-        }).flatten().value()
+        const models: ModelFile[] = modelFiles.map(fPath => {
+            if (fPath.endsWith(".yml") || fPath.endsWith(".yaml")) {
+                const fModelSource = fs.readFileSync(fPath).toString()
+                return {
+                    //TODO 如果必要，区分path和filename，比如要搞命名空间的时候，需要相对路径
+                    fileName: fPath,
+                    path: fPath,
+                    modelObject: yaml.safeLoad(fModelSource)
+                } as ModelFile
+            } else {
+                throw new Error(`not support file type - ${fPath}`)
+            }
+        })
 
 
 
@@ -104,7 +95,7 @@ export class FolderRepository implements ModelRepository {
         }).flat()
 
 
-
+        
 
 
         return new FolderRepository(base,

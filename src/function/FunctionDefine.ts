@@ -1,8 +1,9 @@
-import { ModelDefine, ModelWeaveLog } from "../model/ModelDefine";
+import { ModelDefine } from "../model/ModelDefine";
 import { Model } from "../model/Model";
 import * as _ from "lodash";
 import { Function } from "./FunctionModel"
-import { ValidatError } from "../model/ModelManager";
+import { ValidateError } from "../model/ModelManager";
+import { ModelWeaveLog } from "../model/ModelWeaver";
 
 type Functions = { functions: Function[] }
 
@@ -26,10 +27,10 @@ export class FunctionDefine implements ModelDefine<Functions> {
             }
         }
     }
-    validateAfterMerge(model: Model): ValidatError[] {
+    validateAfterMerge(model: Model): ValidateError[] {
         return []
     }
-    validateAfterWeave(model: Model): ValidatError[] {
+    validateAfterWeave(model: Model): ValidateError[] {
         return []
     }
 }

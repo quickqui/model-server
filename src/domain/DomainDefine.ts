@@ -1,26 +1,12 @@
-import { ModelDefine, ModelWeaveLog, ModelWeaver } from "../model/ModelDefine";
+import { ModelDefine } from "../model/ModelDefine";
 import { Model } from "../model/Model";
 import { Entity, Enum } from "./DomainModel";
 import * as _ from "lodash";
-import { ValidatError } from "../model/ModelManager";
-import { pushAll as pushAllExtends } from "./DomainExtends";
-import { BriefWeaver } from "./BriefWeaver";
-import { DefaultPropertiesWeaver } from "./DefaultPropertiesWeaver";
+import { ValidateError } from "../model/ModelManager";
 
 interface DomainPiece {
     entities: Entity[];
     enums: Enum[];
-}
-
-
-export class InjectedWeaver implements ModelWeaver{
-    name = "inject"
-
-    weave(model: Model): [Model, ModelWeaveLog[]] {
-        const [domainModel, logs] = pushAllExtends(
-            model.domainModel!, [])
-        return [{ ...model, domainModel }, logs]
-    }
 }
 
 
@@ -41,17 +27,12 @@ export class DomainDefine implements ModelDefine<DomainPiece> {
             }
         }
     }
-    validateAfterMerge(model: Model): ValidatError[] {
+    validateAfterMerge(model: Model): ValidateError[] {
         return []
     }
-    validateAfterWeave(model: Model): ValidatError[] {
+    validateAfterWeave(model: Model): ValidateError[] {
         return []
     }
 
 }
 
-export const weavers = [
-    new InjectedWeaver(),
-    new BriefWeaver(),
-    new DefaultPropertiesWeaver()
-]

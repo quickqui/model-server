@@ -14,7 +14,6 @@ export const resolve = <T extends unknown>(pathStr: string, baseDir: string): Pr
     if (!re) {
         re = tryResolve(path.resolve(baseDir, '../dist', pathStr))
     }
-    console.log(re)
     if(!re){
         throw new Error(`can not find ${pathStr} in ${baseDir}`)
     }
