@@ -1,5 +1,6 @@
-import { InjectedWeaver } from "./InjectedWeaver";
-import { BriefWeaver } from "./BriefWeaver";
+export interface WithDomainModel{
+    domainModel:DomainModel
+}
 
 export interface DomainModel {
     entities: Entity[]
@@ -12,7 +13,7 @@ export interface Entity  {
     //inject 是推模式，当前定义注入到之前模式，当前定义最终不生效。
     //TODO 考虑是否要拉模式
     inject? : string
-    //TODO 随时考虑这个东西在这里的合理性。目前的用途是biref字段，严格来讲这个东西不应该是entity的属性。
+    //TODO 随时考虑这个东西在这里的合理性。目前的用途是brief字段，严格来讲这个东西不应该是entity的属性。
     directives?: object
 }
 

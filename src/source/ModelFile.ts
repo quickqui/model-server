@@ -1,5 +1,3 @@
-import { DomainModel } from "../domain/DomainModel";
-import { Model } from "../model/Model";
 
 
 export interface ModelFile {

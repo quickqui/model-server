@@ -10,9 +10,6 @@ import * as minimatch from 'minimatch'
 import { ModelSource } from "../source/ModelSource";
 import * as R from "ramda";
 import { ModelFile } from "../source/ModelFile";
-import { defines } from "../model/ModelDefine";
-import * as lo from 'lodash'
-import { dynamicDefineFilePattern, dynamicDefine } from "../dynamic/Define";
 
 
 export class FolderRepository implements ModelRepository {

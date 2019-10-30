@@ -1,5 +1,4 @@
-import { Model } from "./Model";
-import { Log } from "./ModelDefine";
+import { Model, Log } from "@quick-qui/model-core"
 
 
 export interface ModelConsumer {

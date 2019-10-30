@@ -2,14 +2,11 @@
 import * as _ from 'lodash'
 
 
-import * as t from 'io-ts'
-import { ThrowReporter } from "io-ts/lib/ThrowReporter";
-import { defines, ModelDefineConfig, ModelDefine } from '../model/ModelDefine';
-import { isRight, Right } from 'fp-ts/lib/Either';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import { resolve } from '../Resolve';
 import * as path from 'path';
+import { ModelDefine } from '@quick-qui/model-core';
 
 
 

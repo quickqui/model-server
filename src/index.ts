@@ -11,6 +11,9 @@ import { toPrismaSchemaString } from "./data/PrimsaDataSchema";
 import { ModelManager } from "./model/ModelManager";
 import { sourceToPlantUml, modelToPlantUml } from "./uml/PlantUml";
 import { env } from "./Env";
+import { Model } from "@quick-qui/model-core";
+import { WithDomainModel } from "./domain/DomainModel";
+import { WithFunctionModel } from "./function/FunctionModel";
 
 
 
@@ -18,7 +21,7 @@ const app = express();
 const port = 1111; // default port to listen
 
 const modelProjectDir = env.modelProjectDir
-const modelManager = new ModelManager({ protocol: "folder", resource: modelProjectDir+"/model" })
+const modelManager = new ModelManager({ protocol: "folder", resource: modelProjectDir + "/model" })
 
 const platumlServiceUrl = 'http://plantuml-service:1608/svg';
 
@@ -55,7 +58,7 @@ app.post("/model/refresh", async function (req, res, next) {
 })
 
 
-app.get("/uml/sources/:id", async function (req, res, next){
+app.get("/uml/sources/:id", async function (req, res, next) {
 
     try {
         const model = await modelManager.getSource()
@@ -70,10 +73,10 @@ app.get("/uml/sources/:id", async function (req, res, next){
     }
 })
 
-app.get("/uml/models/:id", async function (req, res, next){
+app.get("/uml/models/:id", async function (req, res, next) {
 
     try {
-        const model = await modelManager.getOriginalModel()
+        const model = await modelManager.getOriginalModel() as Model & WithDomainModel & WithFunctionModel
         if (model) {
             const startUML = modelToPlantUml(model)
             const rep = await axios.post(platumlServiceUrl, startUML)
@@ -87,7 +90,8 @@ app.get("/uml/models/:id", async function (req, res, next){
 
 app.get("/uml", async function (req, res, next) {
     try {
-        const model = await modelManager.getModel()
+        const model = (await modelManager.getModel()) as Model & WithDomainModel & WithFunctionModel
+
         if (model.domainModel)
             res.status(200).send(domainToPlanUml(model.domainModel))
         else
@@ -99,7 +103,7 @@ app.get("/uml", async function (req, res, next) {
 app.get("/uml/entities/:id", async function (req, res, next) {
     //:id （暂时）是假的
     try {
-        const model = await modelManager.getModel()
+        const model = await modelManager.getModel() as Model & WithDomainModel & WithFunctionModel
         if (model.domainModel) {
             const startUML = domainToPlanUml(model.domainModel)
             const rep = await axios.post(platumlServiceUrl, startUML)
@@ -114,7 +118,7 @@ app.get("/uml/functions/:id", async function (req, res, next) {
     //:id （暂时）是假的
 
     try {
-        const model = await modelManager.getModel()
+        const model = await modelManager.getModel() as Model & WithDomainModel & WithFunctionModel
         if (model.functionModel) {
             const startUML = functionsToPlantUml(model.functionModel)
             const rep = await axios.post(platumlServiceUrl, startUML)
@@ -129,7 +133,7 @@ app.get("/uml/functions/:id", async function (req, res, next) {
 app.get("/uml/usecases/:id", async function (req, res, next) {
     //:id （暂时）是假的
     try {
-        const model = await modelManager.getModel()
+        const model = await modelManager.getModel() as Model & WithDomainModel & WithFunctionModel
         if (model.functionModel) {
             const startUML = usecaseToPlantUml(model.functionModel)
             const rep = await axios.post(platumlServiceUrl, startUML)
@@ -144,7 +148,7 @@ app.get("/uml/usecases/:id", async function (req, res, next) {
 //比如从 git repository 拉取。
 app.post("/deploy", async function (req, res, next) {
     try {
-        const model = await modelManager.getModel()
+        const model = await modelManager.getModel() as Model & WithDomainModel & WithFunctionModel
         try {
             await insuringProject()
         } catch (e) { }
@@ -159,7 +163,7 @@ app.post("/deploy", async function (req, res, next) {
 
 app.post("/deploy/dry", async function (req, res, next) {
     try {
-        const model = await modelManager.getModel()
+        const model = await modelManager.getModel() as Model & WithDomainModel & WithFunctionModel
         try {
             await insuringProject()
         } catch (e) { }
@@ -173,7 +177,7 @@ app.post("/deploy/dry", async function (req, res, next) {
 
 app.post("/deploy/force", async function (req, res, next) {
     try {
-        const model = await modelManager.getModel()
+        const model = await modelManager.getModel() as Model & WithDomainModel & WithFunctionModel
         try {
             await insuringProject()
         } catch (e) { }

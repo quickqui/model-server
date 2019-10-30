@@ -1,4 +1,6 @@
-
+export interface WithFunctionModel{
+    functionModel: FunctionModel
+}
 
 export interface FunctionModel {
     functions: Function[]

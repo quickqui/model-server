@@ -1,6 +1,8 @@
 import { ModelSource } from "../source/ModelSource";
 import * as R from "ramda";
-import { Model } from "../model/Model";
+import { Model } from "@quick-qui/model-core";
+import { WithDomainModel } from "../domain/DomainModel";
+import { WithFunctionModel } from "../function/FunctionModel";
 
 // function getIndex<T>(source: T, all: T[]): number | undefined {
 //     return all.indexOf(source)
@@ -23,7 +25,7 @@ export function sourceToPlantUml(sources: ModelSource[]): string {
         `\n\n@enduml\n`
 }
 
-export function modelToPlantUml(model: Model): string {
+export function modelToPlantUml(model: Model & WithDomainModel & WithFunctionModel): string {
     const models:any[] =((model.domainModel&& model.domainModel.entities ||[]) as any[])
     .concat(model.domainModel && model.domainModel.enums || [])
     .concat(model.functionModel && model.functionModel.functions || [])

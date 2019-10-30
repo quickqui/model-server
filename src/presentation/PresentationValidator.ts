@@ -1,5 +1,4 @@
-import { ModelValidator, ValidateError } from "../model/ModelManager";
-import { Model } from "../model/Model";
+import { ModelValidator, Model, ValidateError } from "@quick-qui/model-core";
 
 
 export class PresentationValidator implements ModelValidator {

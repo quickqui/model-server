@@ -1,32 +1,33 @@
-import { Model } from "./Model";
 import { FolderRepository } from "../repository/FolderRepository";
 import { ModelRepository } from "./ModelRepository";
 import { ModelSource } from "../source/ModelSource";
 import { Location } from '../source/ModelSource'
 import { LibraryRepository } from "../repository/LibraryRepository";
-import { defines, Log, ModelDefine } from "./ModelDefine";
 import * as _ from "lodash";
-import { weavers, ModelWeaveLog } from "./ModelWeaver";
 import { dynamicDefineFilePattern, dynamicDefine } from "../dynamic/Define";
 import * as minimatch from 'minimatch';
 import { ModelFile } from "../source/ModelFile";
 
+import { DomainDefine } from "../domain/DomainDefine";
+import { FunctionDefine } from "../function/FunctionDefine";
+import { ModelDefine, ModelWeaver, ValidateError, Model, ModelWeaveLog } from "@quick-qui/model-core";
+import { domainWeavers } from "../domain/DomainWeavers";
 
 
-export interface ModelValidator {
-    validate(model: Model): ValidateError[]
-}
+
+export const defines: ModelDefine<unknown>[] = [
+    new DomainDefine(),
+    new FunctionDefine()
+]
+
+export const weavers: ModelWeaver[] = [
+    ...domainWeavers
+]
+
 export interface ModelSourceValidator {
     validate(modelSources: ModelSource[]): ValidateError[]
 }
-export class ValidateError implements Log {
-    category: string = 'validate'
-    level: string = 'error'
-    message: string = ''
-    constructor(message: string) {
-        this.message = message
-    }
-}
+
 
 export class ModelManager {
     private main: Location
@@ -67,8 +68,8 @@ export class ModelManager {
     }
 
     emptyModel: Model = {
-        domainModel: undefined,
-        functionModel: undefined
+       type:"model"
+
     }
 
     async getOriginalModel(): Promise<Model> {

@@ -1,12 +1,12 @@
-import { DomainModel, Entity } from "./DomainModel";
+import { DomainModel, Entity, WithDomainModel } from "./DomainModel";
 import * as R from "ramda";
 import * as _ from "lodash";
-import { Model } from "../model/Model";
-import { ModelWeaveLog } from "../model/ModelWeaver";
+import { Model, ModelWeaveLog } from "@quick-qui/model-core";
 
 
 
-export function forEachEntity(model: Model,fun:(entity: Entity)=>[Entity, ModelWeaveLog?]) :[Model, ModelWeaveLog[]]{
+
+export function forEachEntity(model: Model & WithDomainModel, fun: (entity: Entity) => [Entity, ModelWeaveLog?]): [Model, ModelWeaveLog[]] {
     const entities = model.domainModel!.entities;
     let logs: ModelWeaveLog[] = [];
     let newEntities: Entity[] = [];
@@ -47,7 +47,7 @@ function push(model: DomainModel, entity: Entity): [DomainModel, ModelWeaveLog] 
             return [{
                 entities: model.entities.filter(R.complement(R.propEq('name', entity.name))),
                 enums: model.enums
-            }, new ModelWeaveLog(  `Injected - form entity/${entity.name} to entity/${target.name}` )]
+            }, new ModelWeaveLog(`Injected - form entity/${entity.name} to entity/${target.name}`)]
         } else {
             throw new Error(`no such entity - ${target}`)
         }

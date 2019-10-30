@@ -1,8 +1,6 @@
-import { ModelDefine } from "../model/ModelDefine";
-import { Model } from "../model/Model";
-import { Entity, Enum } from "./DomainModel";
+import { Entity, Enum, WithDomainModel } from "./DomainModel";
 import * as _ from "lodash";
-import { ValidateError } from "../model/ModelManager";
+import { ModelDefine, Model, ValidateError } from "@quick-qui/model-core";
 
 interface DomainPiece {
     entities: Entity[];
@@ -17,7 +15,7 @@ export class DomainDefine implements ModelDefine<DomainPiece> {
         return source as DomainPiece
     }
   
-    merge(model: Model, piece: DomainPiece): Model {
+    merge(model: Model & WithDomainModel, piece: DomainPiece): Model {
         return {
             ...model,
             domainModel: {

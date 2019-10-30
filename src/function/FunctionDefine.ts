@@ -1,9 +1,6 @@
-import { ModelDefine } from "../model/ModelDefine";
-import { Model } from "../model/Model";
 import * as _ from "lodash";
-import { Function } from "./FunctionModel"
-import { ValidateError } from "../model/ModelManager";
-import { ModelWeaveLog } from "../model/ModelWeaver";
+import { Function, WithFunctionModel } from "./FunctionModel"
+import { ModelDefine, Model, ModelWeaveLog, ValidateError } from "@quick-qui/model-core";
 
 type Functions = { functions: Function[] }
 
@@ -18,7 +15,7 @@ export class FunctionDefine implements ModelDefine<Functions> {
         //目前暂时没有extends的function？
         return [model, []]
     }
-    merge(model: Model, piece: Functions): Model {
+    merge(model: Model & WithFunctionModel , piece: Functions): Model {
         return {
             ...model,
             functionModel: {
