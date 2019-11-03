@@ -1,7 +1,9 @@
 import { env } from "./Env";
 import * as path from 'path';
+import * as ulog from 'ulog'
+const log= ulog('Resolve')
 function _interopRequireDefault(obj: any) {
-    console.log(obj)
+    log.debug(obj)
     return obj && obj.__esModule ? obj : { default: obj };
 }
 

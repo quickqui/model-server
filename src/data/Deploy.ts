@@ -3,6 +3,8 @@
 import request from 'graphql-request'
 
 
+import * as ulog from 'ulog'
+const log =ulog.log('Deploy')
 
 /*
 input DeployInput {
@@ -60,12 +62,12 @@ export default function deploy(typeDefines: string, project: Project = { name: "
         dryRun,
         ...project
     }
-    console.log(typeDefines)
+    log.debug(typeDefines)
     return request(url, query, { input: queryInput }).then((rep) => {
-        // console.log(rep)
-        (rep as any).deploy.errors.forEach((e) => {
-            console.log(e)
-        })
+        log.debug(rep)
+            (rep as any).deploy.errors.forEach((e) => {
+                log.error(e)
+            })
         return rep
     })
 }

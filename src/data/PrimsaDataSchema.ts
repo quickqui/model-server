@@ -5,11 +5,11 @@ import * as _ from 'lodash'
 export function toPrismaSchemaString(domainModel: DomainModel): string {
     //what?
     function typeMapping(type: any) {
-        const scalas = ["string", "boolean"]
+        const scalars = ["string", "boolean"]
         if (type.itemType) {
             return `[${type.itemType}!]`
         }
-        if (scalas.includes(type)) {
+        if (scalars.includes(type)) {
             return camelCase(type, { pascalCase: true })
         }
         return type

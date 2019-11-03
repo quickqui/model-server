@@ -5,7 +5,7 @@ import * as bodyParser from 'body-parser'
 import deploy, { insuringProject } from './data/Deploy'
 import { domainToPlanUml } from "./uml/domainToPlanUml";
 import { functionsToPlantUml } from "./uml/functionsToPlantUml";
-import { usecaseToPlantUml } from "./uml/usecaseToPlantUml";
+import { useCaseToPlantUml } from "./uml/useCaseToPlantUml";
 import axios from "axios"
 import { toPrismaSchemaString } from "./data/PrimsaDataSchema";
 import { ModelManager } from "./model/ModelManager";
@@ -40,7 +40,6 @@ app.get("/model", async function (req, res, next) {
 
 app.get("/logs", async function (req, res, next) {
     try {
-        const model = await modelManager.getModel()
         const logs = await modelManager.getWeaveLogs()
         res.status(200).json(logs)
     } catch (e) {
@@ -135,7 +134,7 @@ app.get("/uml/usecases/:id", async function (req, res, next) {
     try {
         const model = await modelManager.getModel() as Model & WithDomainModel & WithFunctionModel
         if (model.functionModel) {
-            const startUML = usecaseToPlantUml(model.functionModel)
+            const startUML = useCaseToPlantUml(model.functionModel)
             const rep = await axios.post(platumlServiceUrl, startUML)
             res.status(200).json({ id: 1, source: rep.data })
         } else

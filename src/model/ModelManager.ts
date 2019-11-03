@@ -13,7 +13,8 @@ import { FunctionDefine } from "../function/FunctionDefine";
 import { ModelDefine, ModelWeaver, ValidateError, Model, ModelWeaveLog } from "@quick-qui/model-core";
 import { domainWeavers } from "../domain/DomainWeavers";
 
-
+import * as ulog from 'ulog'
+const log = ulog('ModelManager')
 
 export const defines: ModelDefine<unknown>[] = [
     new DomainDefine(),
@@ -58,7 +59,7 @@ export class ModelManager {
             const errs = await this.sourceValidators.map(_ => _.validate(builded)).flat()
             if (errs.length != 0) {
                 //TODO 应该有个更友好的设计。
-                errs.forEach(console.log)
+                errs.forEach(log.error())
                 throw new Error("model source validate failed")
             };
             this.modelSources = Promise.resolve(builded)
@@ -112,7 +113,7 @@ export class ModelManager {
             // const errs = await this.validators.map((_) => _.validate(model)).flat()
             // if (errs.length != 0) {
             //     //TODO 应该有个更友好的设计。
-            //     errs.forEach(console.log)
+            //      errs.forEach(log.error)
             //     throw new Error("model validate failed")
             // };
             this.originalModel = Promise.resolve(model)
