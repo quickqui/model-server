@@ -8,14 +8,14 @@ interface DomainPiece {
 }
 
 
-export class DomainDefine implements ModelDefine<DomainPiece> {
+export class DomainDefine implements ModelDefine {
     name = "domain"
     filePattern: string = "**/*.domainModel.*"
-    toPiece(source: object): DomainPiece {
-        return source as DomainPiece
+   
+    validatePiece(piece: any):ValidateError[]{
+        return []
     }
-  
-    merge(model: Model & WithDomainModel, piece: DomainPiece): Model {
+    merge(model: Model & WithDomainModel, piece: any): Model {
         return {
             ...model,
             domainModel: {

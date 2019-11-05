@@ -10,6 +10,8 @@ import * as minimatch from 'minimatch'
 import { ModelSource } from "../source/ModelSource";
 import * as R from "ramda";
 import { ModelFile } from "../source/ModelFile";
+import { checkRuntimeType } from "../util/checkRuntimeType";
+import * as t from 'io-ts'
 
 
 export class FolderRepository implements ModelRepository {
@@ -43,8 +45,8 @@ export class FolderRepository implements ModelRepository {
             if (minimatch(file, "**/*.include.*") ||
                 minimatch(file, "**/include.*")) {
                 includeFiles.push(file)
-            }  else {
-                modelFiles.push(file) 
+            } else {
+                modelFiles.push(file)
                 //! define file包括在files里面。
             }
         });
@@ -85,14 +87,19 @@ export class FolderRepository implements ModelRepository {
             }
         })
 
-
+        const includeRuntimeType = t.type({
+            //TODO
+        })
 
         const includes = includeFiles.map((fPath) => {
-            return yaml.safeLoad(fs.readFileSync(fPath).toString())["includes"]
+            const obj = yaml.safeLoad(fs.readFileSync(fPath).toString())
+                        //TODO 应该有个更友好的设计。
+
+            return checkRuntimeType(obj, includeRuntimeType, fPath)["includes"]
         }).flat()
 
 
-        
+
 
 
         return new FolderRepository(base,

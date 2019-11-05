@@ -6,37 +6,40 @@ import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import { resolve } from '../Resolve';
 import * as path from 'path';
-import { ModelDefine } from '@quick-qui/model-core';
+import { ModelDefine, modelDefineRuntimeType } from '@quick-qui/model-core';
+
+
+import { checkRuntimeType } from '../util/checkRuntimeType';
+
 
 
 
 
 export const dynamicDefineFilePattern: string = "**/**.define.yml"
 
-export async function dynamicDefine(filePath: string) : Promise<ModelDefine<unknown>[]> {
+export async function dynamicDefine(filePath: string): Promise<ModelDefine[]> {
     if (filePath.endsWith(".yml")) {
         const fModelSource = fs.readFileSync(filePath).toString()
         const obj = yaml.safeLoad(fModelSource)
-        const baseDir =path.dirname(path.resolve(filePath))
+        const baseDir = path.dirname(path.resolve(filePath))
         //TODO any是否可以进行限制？
-        return Promise.all(obj.defines.map(o=>forOne(o,baseDir)))
+        return Promise.all(obj.defines.map(o => forOne(o, baseDir)))
     } else {
         throw new Error(
             'only .yml file supported'
         )
     }
 }
-async function forOne(obj: any,baseDir:string) : Promise<ModelDefine<unknown>> {
-    const extendObj: any = await resolve(obj.extend,baseDir)
+async function forOne(obj: any, baseDir: string): Promise<ModelDefine> {
+    const extendObj: any = await resolve(obj.extend, baseDir)
     if (extendObj) {
-        return {
-            name: obj.name, 
+        const re = {
+            name: obj.name,
             filePattern: obj.filePattern,
             ...extendObj
-            // merge: extendObj.merge, toPiece: extendObj.toPiece,
-            // validateAfterMerge: extendObj.validateAfterMerge,
-            // validateAfterWeave: extendObj.validateAfterWeave
         }
+        return checkRuntimeType(re,modelDefineRuntimeType,obj.name)
     }
     throw new Error('can not resolve')
 }
+

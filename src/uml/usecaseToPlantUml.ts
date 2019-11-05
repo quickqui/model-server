@@ -5,7 +5,7 @@ export function useCaseToPlantUml(functionModel: FunctionModel): string| undefin
             return `:${role}: -> (${fun.name})`;
         }).join("\n");
     }).join("\n\n")
-    if (uml !== '')
+    if (uml.trim() !== '')
         return "@startuml\n\n" + uml
             + "\n\n@enduml";
     else return undefined

@@ -1,0 +1,1 @@
+//TODO 动态定义wave？还是定义在define里面？因为一般的wave都是跟define一起吧？

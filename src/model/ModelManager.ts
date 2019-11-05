@@ -16,7 +16,7 @@ import { domainWeavers } from "../domain/DomainWeavers";
 import * as ulog from 'ulog'
 const log = ulog('ModelManager')
 
-export const defines: ModelDefine<unknown>[] = [
+export const defines: ModelDefine[] = [
     new DomainDefine(),
     new FunctionDefine()
 ]
@@ -69,7 +69,7 @@ export class ModelManager {
     }
 
     emptyModel: Model = {
-       type:"model"
+        type: "model"
 
     }
 
@@ -87,19 +87,28 @@ export class ModelManager {
                 })
             }).flat()
 
-            const dynamicDefines: ModelDefine<unknown>[] = (await Promise.all(defineFiles.map(
+            const dynamicDefines: ModelDefine[] = (await Promise.all(defineFiles.map(
                 async (file) => Promise.all(await dynamicDefine(file.fileName))))).flat()
 
-            dynamicDefines.forEach((d: ModelDefine<unknown>) => defines.push(d))
+            dynamicDefines.forEach((d: ModelDefine) => defines.push(d))
             sources.forEach(
                 modelSource => modelSource.files.forEach(
                     file => {
                         const define = defines.find(
-                            (def: ModelDefine<unknown>) => {
+                            (def: ModelDefine) => {
                                 return minimatch(file.fileName, def.filePattern)
                             })
                         if (define) {
-                            model = define.merge(model, define.toPiece(file.modelObject))
+                            const piece = file.modelObject
+                            const errors = define.validatePiece(model, piece)
+                            if (errors.length != 0) {
+                                //TODO 应该有个更友好的设计。
+                                //TODO 综合考虑所有的validate输出
+                                throw new Error(errors.join('\n'))
+                            }
+                            else {
+                                model = define.merge(model, piece)
+                            }
                         } else if (minimatch(file.fileName, dynamicDefineFilePattern)) {
                             //do nothing
                         } else {
