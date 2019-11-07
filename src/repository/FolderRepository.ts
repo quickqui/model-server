@@ -80,6 +80,7 @@ export class FolderRepository implements ModelRepository {
                     //TODO 如果必要，区分path和filename，比如要搞命名空间的时候，需要相对路径
                     fileName: fPath,
                     path: fPath,
+                    repositoryBase: base,
                     modelObject: yaml.safeLoad(fModelSource)
                 } as ModelFile
             } else {
@@ -93,7 +94,7 @@ export class FolderRepository implements ModelRepository {
 
         const includes = includeFiles.map((fPath) => {
             const obj = yaml.safeLoad(fs.readFileSync(fPath).toString())
-                        //TODO 应该有个更友好的设计。
+            //TODO 应该有个更友好的设计。
 
             return checkRuntimeType(obj, includeRuntimeType, fPath)["includes"]
         }).flat()

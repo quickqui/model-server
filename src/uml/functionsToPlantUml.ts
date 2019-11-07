@@ -1,5 +1,4 @@
-import { FunctionModel } from "../function/FunctionModel";
-export function functionsToPlantUml(functionModel: FunctionModel): string {
+export function functionsToPlantUml(functionModel: any): string {
     return "@startuml\n\n" +
         functionModel.functions.map((fun) => {
             return `state ${fun.name}`;

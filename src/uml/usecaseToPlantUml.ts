@@ -1,5 +1,4 @@
-import { FunctionModel } from "../function/FunctionModel";
-export function useCaseToPlantUml(functionModel: FunctionModel): string| undefined {
+export function useCaseToPlantUml(functionModel: any): string| undefined {
     const uml = functionModel.functions.map((fun) => {
         return (fun.roles || []).map((role) => {
             return `:${role}: -> (${fun.name})`;

@@ -17,13 +17,12 @@ import { checkRuntimeType } from '../util/checkRuntimeType';
 
 export const dynamicDefineFilePattern: string = "**/**.define.yml"
 
-export async function dynamicDefine(filePath: string): Promise<ModelDefine[]> {
+export async function dynamicDefine(filePath: string,repositoryBase:string): Promise<ModelDefine[]> {
     if (filePath.endsWith(".yml")) {
         const fModelSource = fs.readFileSync(filePath).toString()
         const obj = yaml.safeLoad(fModelSource)
-        const baseDir = path.dirname(path.resolve(filePath))
         //TODO any是否可以进行限制？
-        return Promise.all(obj.defines.map(o => forOne(o, baseDir)))
+        return Promise.all(obj.defines.map(o => forOne(o, repositoryBase)))
     } else {
         throw new Error(
             'only .yml file supported'

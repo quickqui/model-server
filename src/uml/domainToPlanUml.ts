@@ -1,10 +1,9 @@
-import { DomainModel, Property } from "../domain/DomainModel";
 
 
 import * as camelCase from 'camelcase';
 import * as _ from 'lodash'
-
-export function domainToPlanUml(domainModel: DomainModel): string {
+//TODO 特定于某些model的uml应该移出去
+export function domainToPlanUml(domainModel: any): string {
     function typeMapping(type: any) {
         const scalars = ["string", "boolean"];
         //TODO 这里有些不对，应该是从prisma生成那边抄过来的。
@@ -16,7 +15,7 @@ export function domainToPlanUml(domainModel: DomainModel): string {
         }
         return type;
     }
-    function typeToString(property: Property): string {
+    function typeToString(property: any): string {
         if (property.type) {
             return `${typeMapping(property.type)}`;
         }
@@ -39,7 +38,7 @@ export function domainToPlanUml(domainModel: DomainModel): string {
             }
         }
     }
-    function propertyToString(property: Property): string {
+    function propertyToString(property: any): string {
         //TODO 实现required、type、relation的各种组合。
         return `${property.name}: ${typeToString(property)}`;
     }

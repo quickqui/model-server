@@ -1,8 +1,7 @@
-import { DomainModel, Property, List } from "../domain/DomainModel";
 import * as camelCase from 'camelcase';
 import * as _ from 'lodash'
 
-export function toPrismaSchemaString(domainModel: DomainModel): string {
+export function toPrismaSchemaString(domainModel: any): string {
     //what?
     function typeMapping(type: any) {
         const scalars = ["string", "boolean"]
@@ -14,7 +13,7 @@ export function toPrismaSchemaString(domainModel: DomainModel): string {
         }
         return type
     }
-    function typeToString(property: Property): string {
+    function typeToString(property: any): string {
         const required = property.constraints && property.constraints.includes("required")
         if (property.type) {
             return `${typeMapping(property.type)}${required ? "!" : ""}`
@@ -34,7 +33,7 @@ export function toPrismaSchemaString(domainModel: DomainModel): string {
             }
         }
     }
-    function toDirective(property: Property): string {
+    function toDirective(property: any): string {
         let re = ""
         if (property.relation) {
             if (property.relation.n === "one") {
@@ -65,7 +64,7 @@ export function toPrismaSchemaString(domainModel: DomainModel): string {
         }
         return re
     }
-    function propertyToString(property: Property): string {
+    function propertyToString(property: any): string {
         //TODO 实现List。
         //TODO 实现required、type、relation的各种组合。
         return `${property.name}: ${typeToString(property)} ${toDirective(property)}`

@@ -8,7 +8,6 @@ function _interopRequireDefault(obj: any) {
 }
 
 export const resolve = <T extends unknown>(pathStr: string, baseDir: string): Promise<T> => {
-    path.resolve(baseDir, pathStr)
     let re = tryResolve(path.resolve(baseDir, pathStr))
     if (!re) {
         re = tryResolve(path.resolve(baseDir, '..', pathStr))
@@ -17,7 +16,7 @@ export const resolve = <T extends unknown>(pathStr: string, baseDir: string): Pr
         re = tryResolve(path.resolve(baseDir, '../dist', pathStr))
     }
     if(!re){
-        throw new Error(`can not find ${pathStr} in ${baseDir}`)
+        throw new Error(`can not find module, path=${pathStr} ,baseDir=${baseDir}`)
     }
     return import(
         re!

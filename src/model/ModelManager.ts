@@ -8,22 +8,16 @@ import { dynamicDefineFilePattern, dynamicDefine } from "../dynamic/Define";
 import * as minimatch from 'minimatch';
 import { ModelFile } from "../source/ModelFile";
 
-import { DomainDefine } from "../domain/DomainDefine";
-import { FunctionDefine } from "../function/FunctionDefine";
-import { ModelDefine, ModelWeaver, ValidateError, Model, ModelWeaveLog } from "@quick-qui/model-core";
-import { domainWeavers } from "../domain/DomainWeavers";
+import { ModelDefine, ValidateError, Model, ModelWeaveLog } from "@quick-qui/model-core";
 
 import * as ulog from 'ulog'
 const log = ulog('ModelManager')
 
 export const defines: ModelDefine[] = [
-    new DomainDefine(),
-    new FunctionDefine()
+   
 ]
 
-export const weavers: ModelWeaver[] = [
-    ...domainWeavers
-]
+
 
 export interface ModelSourceValidator {
     validate(modelSources: ModelSource[]): ValidateError[]
@@ -88,7 +82,7 @@ export class ModelManager {
             }).flat()
 
             const dynamicDefines: ModelDefine[] = (await Promise.all(defineFiles.map(
-                async (file) => Promise.all(await dynamicDefine(file.fileName))))).flat()
+                async (file) => Promise.all(await dynamicDefine(file.fileName,file.repositoryBase))))).flat()
 
             dynamicDefines.forEach((d: ModelDefine) => defines.push(d))
             sources.forEach(
@@ -134,7 +128,7 @@ export class ModelManager {
         if (!this.woveModel) {
             const originalModel = await this.getOriginalModel()
             let model = originalModel
-
+            const weavers= defines.map(d=>d.weavers).flat()
             weavers.forEach(weaver => {
                 const [mo, log] = weaver.weave(model)
                 this.woveLogs = _(this.woveLogs).concat(log).value()
