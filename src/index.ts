@@ -141,8 +141,7 @@ app.get("/uml/usecases/:id", async function (req, res, next) {
         next(e);
     }
 })
-//TODO 从容器外获取model文件。
-//比如从 git repository 拉取。
+
 app.post("/deploy", async function (req, res, next) {
     try {
         const model = await modelManager.getModel() as  any
