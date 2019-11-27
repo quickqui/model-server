@@ -6,7 +6,7 @@
     "start": "nodemon -x ts-node  src/index.ts"
   },
   "dependencies": {
-    "@quick-qui/model-core": "^1.2.1",
+    "@quick-qui/model-core": "^2.0.0",
     "@types/js-yaml": "^3.12.1",
     "@types/lodash": "^4.14.145",
     "@types/nanoid": "^2.1.0",

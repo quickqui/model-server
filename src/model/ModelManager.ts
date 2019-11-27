@@ -12,11 +12,9 @@ import {
   ModelDefine,
   ValidateError,
   Model,
-  ModelWeaveLog
+  ModelWeaver,
+  Log
 } from "@quick-qui/model-core";
-
-import * as ulog from "ulog";
-const log = ulog("ModelManager");
 
 export const defines: ModelDefine[] = [];
 
@@ -29,6 +27,8 @@ class VE extends Error {
   constructor(message: string, logs: ValidateError[]) {
     super(message);
     this.logs = logs;
+    //TODO typescript 'bug', 啥时候可以改掉这个？
+    Object.setPrototypeOf(this, VE.prototype);
   }
 }
 
@@ -38,7 +38,7 @@ export class ModelManager {
   private modelSources: Promise<ModelSource[]> | undefined = undefined;
   private originalModel: Promise<Model> | undefined = undefined;
   private woveModel: Promise<Model> | undefined = undefined;
-  private woveLogs: ModelWeaveLog[] = [];
+  private buildLogs: Log[] = [];
   //TODO source validation暂时没有用，是否有必要？
   private sourceValidators: ModelSourceValidator[] = [];
   constructor(main: Location) {
@@ -60,9 +60,7 @@ export class ModelManager {
   async getSource(): Promise<ModelSource[]> {
     if (!this.modelSources) {
       const builded: ModelSource[] = await this.build(this.main);
-      const errs = await this.sourceValidators
-        .map(_ => _.validate(builded))
-        .flat();
+      const errs = this.sourceValidators.map(_ => _.validate(builded)).flat();
       if (errs.length != 0) {
         throw new VE("validate source failed", errs);
       }
@@ -88,13 +86,17 @@ export class ModelManager {
         })
         .flat();
 
-      const dynamicDefines: ModelDefine[] = (await Promise.all(
-        defineFiles.map(async file =>
-          Promise.all(await dynamicDefine(file.fileName, file.repositoryBase))
+      const dynamicDefines: ModelDefine[] = (
+        await Promise.all(
+          defineFiles.map(async file =>
+            Promise.all(await dynamicDefine(file.fileName, file.repositoryBase))
+          )
         )
-      )).flat();
+      ).flat();
 
       dynamicDefines.forEach((d: ModelDefine) => defines.push(d));
+
+      //merge
       sources.forEach(modelSource =>
         modelSource.files.forEach(file => {
           const define = defines.find((def: ModelDefine) => {
@@ -111,7 +113,7 @@ export class ModelManager {
           } else if (minimatch(file.fileName, dynamicDefineFilePattern)) {
             //do nothing
           } else {
-            throw new Error(`no define find - ${[file.fileName]}`);
+            throw new Error(`no define find - ${file.fileName}`);
           }
         })
       );
@@ -134,11 +136,15 @@ export class ModelManager {
     if (!this.woveModel) {
       const originalModel = await this.getOriginalModel();
 
+      //weave
       let model = originalModel;
       const weavers = defines.map(d => d.weavers).flat();
-      weavers.forEach(weaver => {
+      const sortedWeavers: ModelWeaver[] = _.sortBy(weavers, weaver => {
+        return weaver.order ?? 0;
+      });
+      sortedWeavers.forEach(weaver => {
         const [mo, log] = weaver.weave(model);
-        this.woveLogs = [...this.woveLogs, ...log];
+        this.buildLogs = this.buildLogs.concat(log);
         model = mo;
       });
       //validate after weave
@@ -158,21 +164,29 @@ export class ModelManager {
 
   async getModel(): Promise<Model> {
     if (!this.model) {
-      const woven = await this.getWovenModel();
-      this.model = Promise.resolve(woven);
+      try {
+        const woven = await this.getWovenModel();
+        this.model = Promise.resolve(woven);
+      } catch (err) {
+        if (err instanceof VE) {
+          this.buildLogs = this.buildLogs.concat(err.logs);
+        } else {
+          throw err;
+        }
+      }
     }
     return this.model!;
   }
 
-  getWeaveLogs(): ModelWeaveLog[] {
-    return this.woveLogs;
+  getBuildLogs(): Log[] {
+    return this.buildLogs;
   }
 
   refresh() {
     this.modelSources = undefined;
     this.originalModel = undefined;
     this.woveModel = undefined;
-    this.woveLogs = [];
+    this.buildLogs = [];
     this.model = undefined;
   }
 

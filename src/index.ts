@@ -38,7 +38,7 @@ app.get("/model", async function (req, res, next) {
 
 app.get("/logs", async function (req, res, next) {
     try {
-        const logs = await modelManager.getWeaveLogs()
+        const logs = modelManager.getBuildLogs()
         res.status(200).json(logs)
     } catch (e) {
         next(e);
