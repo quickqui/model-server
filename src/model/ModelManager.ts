@@ -15,6 +15,7 @@ import {
   ModelWeaver,
   Log
 } from "@quick-qui/model-core";
+import { VLogError } from "../util/VLogError";
 
 export const defines: ModelDefine[] = [];
 
@@ -22,15 +23,7 @@ export interface ModelSourceValidator {
   validate(modelSources: ModelSource[]): ValidateError[];
 }
 
-class VE extends Error {
-  logs: ValidateError[] = [];
-  constructor(message: string, logs: ValidateError[]) {
-    super(message);
-    this.logs = logs;
-    //TODO typescript 'bug', 啥时候可以改掉这个？
-    Object.setPrototypeOf(this, VE.prototype);
-  }
-}
+
 
 export class ModelManager {
   private main: Location;
@@ -62,7 +55,7 @@ export class ModelManager {
       const builded: ModelSource[] = await this.build(this.main);
       const errs = this.sourceValidators.map(_ => _.validate(builded)).flat();
       if (errs.length != 0) {
-        throw new VE("validate source failed", errs);
+        throw new VLogError("validate source failed", errs);
       }
       this.modelSources = Promise.resolve(builded);
     }
@@ -106,7 +99,7 @@ export class ModelManager {
             const piece = file.modelObject;
             const errors = define.validatePiece(model, piece);
             if (errors.length != 0) {
-              throw new VE("validate piece failed", errors);
+              throw new VLogError("validate piece failed", errors);
             } else {
               model = define.merge(model, piece);
             }
@@ -124,7 +117,7 @@ export class ModelManager {
         })
         .flat();
       if (validateAfterMerge.length !== 0) {
-        throw new VE("validate after merge failed", validateAfterMerge);
+        throw new VLogError("validate after merge failed", validateAfterMerge);
       }
 
       this.originalModel = Promise.resolve(model);
@@ -155,7 +148,7 @@ export class ModelManager {
         })
         .flat();
       if (validateAfterWeave.length != 0) {
-        throw new VE("validate after weave failed", validateAfterWeave);
+        throw new VLogError("validate after weave failed", validateAfterWeave);
       }
       this.woveModel = Promise.resolve(model);
     }
@@ -168,7 +161,7 @@ export class ModelManager {
         const woven = await this.getWovenModel();
         this.model = Promise.resolve(woven);
       } catch (err) {
-        if (err instanceof VE) {
+        if (err instanceof VLogError) {
           this.buildLogs = this.buildLogs.concat(err.logs);
         } else {
           throw err;

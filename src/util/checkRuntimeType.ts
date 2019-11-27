@@ -1,5 +1,7 @@
 import { isRight } from "fp-ts/lib/Either";
 import { PathReporter } from "io-ts/lib/PathReporter";
+import { VLogError } from "./VLogError";
+import { ValidateError } from "@quick-qui/model-core";
 export function checkRuntimeType(
   obj: any,
   type: any,
@@ -9,14 +11,11 @@ export function checkRuntimeType(
   if (isRight(re)) {
     return obj;
   } else {
-    throw new VLogError(errorContext, PathReporter.report(re));
-  }
-}
-
-export class VLogError extends Error {
-  logs: string[] = [];
-  constructor(message: string, logs: string[]) {
-    super(message);
-    this.logs = logs;
+    throw new VLogError(
+      `runtime type check - ${errorContext}`,
+      PathReporter.report(re).map(
+        string => new ValidateError(errorContext, string)
+      )
+    );
   }
 }
