@@ -1,4 +1,3 @@
-import { env } from "./Env";
 import * as path from 'path';
 import * as ulog from 'ulog'
 const log= ulog('Resolve')

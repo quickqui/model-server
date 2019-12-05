@@ -1,4 +1,5 @@
 import { ModelFile } from "./ModelFile";
+import { ValidateError } from "@quick-qui/model-core";
 
 export interface Location {
   protocol: string;
@@ -11,4 +12,8 @@ export interface ModelSource {
   files: ModelFile[];
   includes: Location[];
   includeSources: ModelSource[];
+}
+
+export interface ModelSourceValidator {
+  validate(modelSources: ModelSource[]): ValidateError[];
 }

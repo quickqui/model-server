@@ -1,6 +1,6 @@
 import { FolderRepository } from "../repository/FolderRepository";
 import { ModelRepository } from "./ModelRepository";
-import { ModelSource } from "../source/ModelSource";
+import { ModelSource, ModelSourceValidator } from "../source/ModelSource";
 import { Location } from "../source/ModelSource";
 import { LibraryRepository } from "../repository/LibraryRepository";
 import * as _ from "lodash";
@@ -10,22 +10,14 @@ import { ModelFile } from "../source/ModelFile";
 
 import {
   ModelDefine,
-  ValidateError,
   Model,
   ModelWeaver,
   Log
 } from "@quick-qui/model-core";
 import { VLogError } from "../util/VLogError";
 
-export const defines: ModelDefine[] = [];
-
-export interface ModelSourceValidator {
-  validate(modelSources: ModelSource[]): ValidateError[];
-}
-
-
-
 export class ModelManager {
+  private defines: ModelDefine[] = [];
   private main: Location;
   private model: Promise<Model> | undefined = undefined;
   private modelSources: Promise<ModelSource[]> | undefined = undefined;
@@ -87,12 +79,12 @@ export class ModelManager {
         )
       ).flat();
 
-      dynamicDefines.forEach((d: ModelDefine) => defines.push(d));
+      dynamicDefines.forEach((d: ModelDefine) => this.defines.push(d));
 
       //merge
       sources.forEach(modelSource =>
         modelSource.files.forEach(file => {
-          const define = defines.find((def: ModelDefine) => {
+          const define = this.defines.find((def: ModelDefine) => {
             return minimatch(file.fileName, def.filePattern);
           });
           if (define) {
@@ -111,7 +103,7 @@ export class ModelManager {
         })
       );
       //validate after merge
-      const validateAfterMerge = defines
+      const validateAfterMerge = this.defines
         .map(def => {
           return def.validateAfterMerge(model);
         })
@@ -131,7 +123,7 @@ export class ModelManager {
 
       //weave
       let model = originalModel;
-      const weavers = defines.map(d => d.weavers).flat();
+      const weavers = this.defines.map(d => d.weavers).flat();
       const sortedWeavers: ModelWeaver[] = _.sortBy(weavers, weaver => {
         return weaver.order ?? 0;
       });
@@ -142,7 +134,7 @@ export class ModelManager {
       });
       //validate after weave
 
-      const validateAfterWeave = defines
+      const validateAfterWeave = this.defines
         .map(def => {
           return def.validateAfterWeave(model);
         })
