@@ -30,7 +30,7 @@ export class ModelManager {
     this.main = main;
   }
 
-  //! model 处理的几个阶段 -
+  //RULE model 处理的几个阶段 -
   /*
         1. 处理include，所有文件展开，包括可能不认识的。
         1. 处理defines //因为defines可能以include定义
