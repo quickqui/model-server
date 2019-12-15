@@ -8,12 +8,7 @@ import { dynamicDefineFilePattern, dynamicDefine } from "../dynamic/Define";
 import * as minimatch from "minimatch";
 import { ModelFile } from "../source/ModelFile";
 
-import {
-  ModelDefine,
-  Model,
-  ModelWeaver,
-  Log
-} from "@quick-qui/model-core";
+import { ModelDefine, Model, ModelWeaver, Log } from "@quick-qui/model-core";
 import { VLogError } from "../util/VLogError";
 
 export class ModelManager {
