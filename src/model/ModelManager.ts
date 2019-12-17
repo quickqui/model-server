@@ -8,7 +8,13 @@ import { dynamicDefineFilePattern, dynamicDefine } from "../dynamic/Define";
 import * as minimatch from "minimatch";
 import { ModelFile } from "../source/ModelFile";
 
-import { ModelDefine, Model, ModelWeaver, Log } from "@quick-qui/model-core";
+import {
+  ModelDefine,
+  Model,
+  ModelWeaver,
+  Log,
+  ValidateError
+} from "@quick-qui/model-core";
 import { VLogError } from "../util/VLogError";
 
 export class ModelManager {
@@ -19,7 +25,7 @@ export class ModelManager {
   private originalModel: Promise<Model> | undefined = undefined;
   private woveModel: Promise<Model> | undefined = undefined;
   private buildLogs: Log[] = [];
-  //TODO source validation暂时没有用，是否有必要？
+  //NOTE source validation暂时没有用,先留着吧。
   private sourceValidators: ModelSourceValidator[] = [];
   constructor(main: Location) {
     this.main = main;
@@ -93,7 +99,9 @@ export class ModelManager {
           } else if (minimatch(file.fileName, dynamicDefineFilePattern)) {
             //do nothing
           } else {
-            throw new Error(`no define find - ${file.fileName}`);
+            throw new VLogError(`no define find - ${file.fileName}`, [
+              new ValidateError(`files/${file.fileName}`, "no define find")
+            ]);
           }
         })
       );

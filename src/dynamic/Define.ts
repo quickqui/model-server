@@ -15,9 +15,9 @@ export async function dynamicDefine(
 ): Promise<ModelDefine[]> {
   if (filePath.endsWith(".yml")) {
     const fModelSource = fs.readFileSync(filePath).toString();
-    const obj = yaml.safeLoad(fModelSource);
-    //TODO any是否可以进行限制？
-    return Promise.all(obj.defines.map(o => forOne(o, repositoryBase)));
+    const obj  = yaml.safeLoad(fModelSource);
+    //TODO any是否可以进行限制？ assert/typeCheck function?
+    return Promise.all(obj.defines?.map(o => forOne(o, repositoryBase)));
   } else {
     throw new Error("only .yml file supported");
   }
