@@ -75,7 +75,7 @@ export class ModelManager {
       const dynamicDefines: ModelDefine[] = (
         await Promise.all(
           defineFiles.map(async file =>
-            Promise.all(await dynamicDefine(file.fileName, file.repositoryBase))
+            Promise.all(await dynamicDefine(file.path, file.repositoryBase))
           )
         )
       ).flat();

@@ -6,6 +6,7 @@ import { resolve } from "../Resolve";
 import { ModelDefine, modelDefineRuntimeType } from "@quick-qui/model-core";
 
 import { checkRuntimeType } from "../util/checkRuntimeType";
+import * as path from 'path';
 
 export const dynamicDefineFilePattern: string = "**/**.define.yml";
 
@@ -14,10 +15,10 @@ export async function dynamicDefine(
   repositoryBase: string
 ): Promise<ModelDefine[]> {
   if (filePath.endsWith(".yml")) {
-    const fModelSource = fs.readFileSync(filePath).toString();
+    const fModelSource = fs.readFileSync(path.join(repositoryBase,filePath)).toString();
     const obj  = yaml.safeLoad(fModelSource);
     //TODO any是否可以进行限制？ assert/typeCheck function?
-    return Promise.all(obj.defines?.map(o => forOne(o, repositoryBase)));
+    return Promise.all(obj.defines?.map(o => forOne(o, repositoryBase))??[]);
   } else {
     throw new Error("only .yml file supported");
   }
