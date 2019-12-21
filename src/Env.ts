@@ -6,7 +6,8 @@ export const env: {
     // return { name: 'dev_local', modelProjectDir: '../prototype/.' }
     return {
       name: "dev_local",
-      modelProjectDir: "../../../huadahengxinProjects/fake-device-general"
+      modelProjectDir: "../prototype/"
+      // modelProjectDir: "../../../huadahengxinProjects/fake-device-general"
     };
   if (process.env.ENV === "dev_docker")
     return { name: "dev_docker", modelProjectDir: "/modelProjectDir" };

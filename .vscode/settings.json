@@ -15,5 +15,8 @@
         "statusBar.foreground": "#15202b"
     },
     "peacock.color": "#42b883",
-    "deepscan.enable": true
+    "deepscan.enable": true,
+    "favorites.resources": [
+        "example.http"
+    ]
 }
