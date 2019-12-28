@@ -15,7 +15,7 @@
     "postdocker:publish": "cross-conf-env docker image push $npm_package_config_imageRepo:latest"
   },
   "dependencies": {
-    "@quick-qui/model-core": "^2.0.0",
+    "@quick-qui/model-core": "^2.0.2",
     "@types/cors": "^2.8.6",
     "@types/js-yaml": "^3.12.1",
     "@types/lodash": "^4.14.149",
@@ -52,7 +52,7 @@
     "nodemon": "^1.19.4",
     "npm-run-all": "^4.1.5",
     "ts-node": "^8.5.4",
-    "typescript": "^3.7.3"
+    "typescript": "^3.7.4"
   },
   "license": "MIT"
 }

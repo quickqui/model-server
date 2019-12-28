@@ -90,11 +90,15 @@ export class ModelManager {
           });
           if (define) {
             const piece = file.modelObject;
-            const errors = define.validatePiece(model, piece);
+            const buildingContext = {
+              modelSource,
+              modelFile: file
+            }
+            const errors = define.validatePiece(model, piece,buildingContext);
             if (errors.length != 0) {
               throw new VLogError("validate piece failed", errors);
             } else {
-              model = define.merge(model, piece);
+              model = define.merge(model, piece,buildingContext);
             }
           } else if (minimatch(file.fileName, dynamicDefineFilePattern)) {
             //do nothing
