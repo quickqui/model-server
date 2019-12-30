@@ -4,8 +4,8 @@ import * as yaml from "js-yaml";
 
 import * as fs from "fs";
 import * as path from "path";
-import * as readdir from "recursive-readdir";
-import * as minimatch from "minimatch";
+import  readdir from "recursive-readdir";
+import minimatch from "minimatch";
 
 import { ModelSource, includeRuntimeType } from "../source/ModelSource";
 import * as R from "ramda";

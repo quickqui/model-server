@@ -1,0 +1,1 @@
+./node_modules/.bin/ts-json-schema-generator -p ./src/dynamic/Define.ts -f 'tsconfig.json' -t Define > ./src/dynamic/DefineSchema.json

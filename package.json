@@ -15,8 +15,10 @@
     "postdocker:publish": "cross-conf-env docker image push $npm_package_config_imageRepo:latest"
   },
   "dependencies": {
+    "@hapi/joi": "^14.5.0",
     "@quick-qui/model-core": "^2.0.2",
     "@types/cors": "^2.8.6",
+    "@types/hapi__joi": "^15.0.4",
     "@types/js-yaml": "^3.12.1",
     "@types/lodash": "^4.14.149",
     "@types/nanoid": "^2.1.0",
@@ -28,6 +30,7 @@
     "body-parser": "^1.19.0",
     "camelcase": "^5.3.1",
     "cors": "^2.8.5",
+    "enjoi": "^6.0.0",
     "express": "^4.17.1",
     "fp-ts": "^2.3.1",
     "github-download": "^0.5.0",
@@ -43,6 +46,7 @@
     "recursive-readdir": "^2.2.2",
     "shelljs": "^0.8.3",
     "temp": "^0.9.1",
+    "typescript": "^3.7.4",
     "ulog": "^1.1.0"
   },
   "devDependencies": {
@@ -51,8 +55,8 @@
     "cross-conf-env": "^1.1.2",
     "nodemon": "^1.19.4",
     "npm-run-all": "^4.1.5",
-    "ts-node": "^8.5.4",
-    "typescript": "^3.7.4"
+    "ts-json-schema-generator": "^0.56.0",
+    "ts-node": "^8.5.4"
   },
   "license": "MIT"
 }

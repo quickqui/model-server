@@ -3,9 +3,9 @@ import { ModelRepository } from "./ModelRepository";
 import { ModelSource, ModelSourceValidator } from "../source/ModelSource";
 import { Location } from "../source/ModelSource";
 import { LibraryRepository } from "../repository/LibraryRepository";
-import * as _ from "lodash";
+import _ from "lodash";
 import { dynamicDefineFilePattern, dynamicDefine } from "../dynamic/Define";
-import * as minimatch from "minimatch";
+import minimatch from "minimatch";
 import { ModelFile } from "../source/ModelFile";
 
 import {

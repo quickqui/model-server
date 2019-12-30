@@ -1,11 +1,11 @@
-import * as express from "express";
-import * as bodyParser from "body-parser";
+import express from "express";
+import bodyParser from "body-parser";
 
 import { ModelManager } from "./model/ModelManager";
 import { getManager, getManagers, ManagerCell } from "./MultiModel";
 
 
-import * as cors from 'cors';
+import cors from 'cors';
 
 const app = express();
 const port = 1111; // default port to listen
