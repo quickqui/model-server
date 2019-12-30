@@ -1,5 +1,5 @@
-import * as camelCase from 'camelcase';
-import * as _ from 'lodash'
+import camelCase from 'camelcase';
+import _ from 'lodash'
 
 export function toPrismaSchemaString(domainModel: any): string {
     //what?

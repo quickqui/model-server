@@ -3,10 +3,10 @@ export const env: {
   modelProjectDir: string;
 } = (() => {
   if (process.env.ENV === "dev_local")
-    // return { name: 'dev_local', modelProjectDir: '../prototype/.' }
+    // return { name: 'dev_local', modelProjectDir: '../linkToTestProjectDir/.' }
     return {
       name: "dev_local",
-      modelProjectDir: "../prototype/"
+      modelProjectDir: "../linkToTestProjectDir/"
       // modelProjectDir: "../../../huadahengxinProjects/fake-device-general"
     };
   if (process.env.ENV === "dev_docker")
