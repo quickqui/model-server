@@ -1,6 +1,6 @@
-import { ModelFile } from "./ModelFile";
 import { ValidateError } from "@quick-qui/model-core";
 import * as t from "io-ts";
+import { ModelFile, fileToDTO } from "./ModelFile";
 
 /**
  *TODO 可以简化配置 目前唯一模式： includes: - '@quick-qui/model-defines/model', 
@@ -30,6 +30,14 @@ export interface ModelSource {
   files: ModelFile[];
   includes: Location[];
   includeSources: ModelSource[];
+}
+export function toDTO(source: ModelSource) {
+  return {
+    name: source.name,
+    description: source.description,
+    files: source.files.map(fileToDTO),
+    includeSources: source.includeSources.map(toDTO)
+  };
 }
 
 export interface ModelSourceValidator {

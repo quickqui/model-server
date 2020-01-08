@@ -3,16 +3,15 @@ import bodyParser from "body-parser";
 
 import { ModelManager } from "./model/ModelManager";
 import { getManager, getManagers, ManagerCell } from "./MultiModel";
+import { env } from "./Env";
 
-
-import cors from 'cors';
+import cors from "cors";
+import { toDTO } from "./source/ModelSource";
 
 const app = express();
-const port = 1111; // default port to listen
+const port = env.servicePort; // default port to listen
 
 app.use(cors());
-
-
 
 function withManager(req, res, fun: (modelManager: ModelManager) => void) {
   const managerId = req.params["id"] ?? "default";
@@ -45,8 +44,6 @@ function get(
 
 app.use(bodyParser.text());
 
-
-
 get("/models/:id", async (res, modelManager) => {
   const model = await modelManager.getModel();
   if (model) res.status(200).json(model);
@@ -60,7 +57,17 @@ get("/models/:id", async (res, modelManager) => {
 
 get("/models/:id/logs", (res, modelManager) => {
   const logs = modelManager.getBuildLogs();
-  res.status(200).json(logs);
+  res
+    .status(200)
+    .header("Content-Range", logs.length)
+    .json(logs);
+});
+get("/models/:id/modelSources", async (res, modelManager) => {
+  const sources = await modelManager.getSource().then(ss => ss.map(toDTO));
+  res
+    .status(200)
+    .header("Content-Range", sources.length)
+    .json(sources);
 });
 
 app.post("/models/:id/refresh", async function(req, res, next) {
@@ -76,94 +83,19 @@ app.post("/models/:id/refresh", async function(req, res, next) {
 
 app.get("/models", (req, res, next) => {
   try {
-    res.status(200).json(
-      getManagers().map((cell: ManagerCell) => {
-        return { id: cell.id, name: cell.name };
-      })
-    );
+    const ms = getManagers();
+    res
+      .status(200)
+      .header("Content-Range", ms.length + "")
+      .json(
+        ms.map((cell: ManagerCell) => {
+          return { id: cell.id, name: cell.name };
+        })
+      );
   } catch (e) {
     next(e);
   }
 });
-
-// app.get("/uml/sources/:id", async function(req, res, next) {
-//   try {
-//     const model = await modelManager.getSource();
-//     if (model) {
-//       const startUML = sourceToPlantUml(model);
-//       const rep = await axios.post(plantUMLServiceUrl, startUML);
-//       res.status(200).json({ id: 1, source: rep.data });
-//     } else res.status(404).send("no model source");
-//   } catch (e) {
-//     next(e);
-//   }
-// });
-
-// app.get("/uml/models/:id", async function(req, res, next) {
-//   try {
-//     const model = (await modelManager.getOriginalModel()) as any;
-//     if (model) {
-//       const startUML = modelToPlantUml(model);
-//       const rep = await axios.post(plantUMLServiceUrl, startUML);
-//       res.status(200).json({ id: 1, source: rep.data });
-//     } else res.status(404).send("no model");
-//   } catch (e) {
-//     next(e);
-//   }
-// });
-
-// app.get("/uml", async function(req, res, next) {
-//   try {
-//     const model = (await modelManager.getModel()) as any;
-
-//     if (model.domainModel)
-//       res.status(200).send(domainToPlanUml(model.domainModel));
-//     else res.status(404).send("no domain model");
-//   } catch (e) {
-//     next(e);
-//   }
-// });
-// app.get("/uml/entities/:id", async function(req, res, next) {
-//   //:id （暂时）是假的
-//   try {
-//     const model = (await modelManager.getModel()) as any;
-//     if (model.domainModel) {
-//       const startUML = domainToPlanUml(model.domainModel);
-//       const rep = await axios.post(plantUMLServiceUrl, startUML);
-//       res.status(200).json({ id: 1, source: rep.data });
-//     } else res.status(404).send("no domain model");
-//   } catch (e) {
-//     next(e);
-//   }
-// });
-// app.get("/uml/functions/:id", async function(req, res, next) {
-//   //:id （暂时）是假的
-
-//   try {
-//     const model = (await modelManager.getModel()) as any;
-//     if (model.functionModel) {
-//       const startUML = functionsToPlantUml(model.functionModel);
-//       const rep = await axios.post(plantUMLServiceUrl, startUML);
-//       res.status(200).json({ id: 1, source: rep.data });
-//     } else res.status(404).send("no function model");
-//   } catch (e) {
-//     next(e);
-//   }
-// });
-
-// app.get("/uml/usecases/:id", async function(req, res, next) {
-//   //:id （暂时）是假的
-//   try {
-//     const model = (await modelManager.getModel()) as any;
-//     if (model.functionModel) {
-//       const startUML = useCaseToPlantUml(model.functionModel);
-//       const rep = await axios.post(plantUMLServiceUrl, startUML);
-//       res.status(200).json({ id: 1, source: rep.data });
-//     } else res.status(404).send("no function model");
-//   } catch (e) {
-//     next(e);
-//   }
-// });
 
 // app.post("/deploy", async function(req, res, next) {
 //   try {

@@ -6,10 +6,12 @@ GET http://localhost:1111/models/front
 
 
 
-
-
 ###  deufault get 
 GET http://localhost:1111/models/default
+
+
+### default sources 
+GET http://localhost:1111/models/default/modelSources
 
 ### default logs 
 GET http://localhost:1111/models/default/logs

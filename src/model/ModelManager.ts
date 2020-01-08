@@ -1,21 +1,23 @@
-import { FolderRepository } from "../repository/FolderRepository";
-import { ModelRepository } from "./ModelRepository";
-import { ModelSource, ModelSourceValidator } from "../source/ModelSource";
-import { Location } from "../source/ModelSource";
-import { LibraryRepository } from "../repository/LibraryRepository";
-import _ from "lodash";
-import { dynamicDefineFilePattern, dynamicDefine } from "../dynamic/Define";
-import minimatch from "minimatch";
-import { ModelFile } from "../source/ModelFile";
-
 import {
-  ModelDefine,
-  Model,
-  ModelWeaver,
   Log,
+  Model,
+  ModelDefine,
+  ModelWeaver,
   ValidateError
 } from "@quick-qui/model-core";
+import _ from "lodash";
+import minimatch from "minimatch";
+import { dynamicDefine, dynamicDefineFilePattern } from "../dynamic/Define";
+import { FolderRepository } from "../repository/FolderRepository";
+import { LibraryRepository } from "../repository/LibraryRepository";
+import { ModelFile } from "../source/ModelFile";
+import {
+  Location,
+  ModelSource,
+  ModelSourceValidator
+} from "../source/ModelSource";
 import { VLogError } from "../util/VLogError";
+import { ModelRepository } from "./ModelRepository";
 
 export class ModelManager {
   private defines: ModelDefine[] = [];
@@ -93,12 +95,12 @@ export class ModelManager {
             const buildingContext = {
               modelSource,
               modelFile: file
-            }
-            const errors = define.validatePiece(model, piece,buildingContext);
+            };
+            const errors = define.validatePiece(model, piece, buildingContext);
             if (errors.length != 0) {
               throw new VLogError("validate piece failed", errors);
             } else {
-              model = define.merge(model, piece,buildingContext);
+              model = define.merge(model, piece, buildingContext);
             }
           } else if (minimatch(file.fileName, dynamicDefineFilePattern)) {
             //do nothing

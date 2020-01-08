@@ -17,6 +17,7 @@
     "peacock.color": "#42b883",
     "deepscan.enable": true,
     "favorites.resources": [
-        "example.http"
+        "example.http",
+        "ms.http"
     ]
 }
