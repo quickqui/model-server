@@ -7,6 +7,7 @@ import { env } from "./Env";
 
 import cors from "cors";
 import { toDTO } from "./source/ModelSource";
+import _ from "lodash";
 
 const app = express();
 const port = env.servicePort; // default port to listen
@@ -60,7 +61,8 @@ get("/models/:id/logs", (res, modelManager) => {
   res
     .status(200)
     .header("Content-Range", logs.length)
-    .json(logs);
+    //TODO 处理分页/排序/过滤
+    .json(logs.map((log,index)=> _.extend({},log,{id:index+""})));
 });
 get("/models/:id/modelSources", async (res, modelManager) => {
   const sources = await modelManager.getSource().then(ss => ss.map(toDTO));
@@ -74,7 +76,7 @@ app.post("/models/:id/refresh", async function(req, res, next) {
   try {
     withManager(req, res, modelManager => {
       modelManager.refresh();
-      res.status(201).send("refresh success");
+      res.status(201).json({message:'refresh success'});
     });
   } catch (e) {
     next(e);
