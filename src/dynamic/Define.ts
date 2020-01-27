@@ -14,7 +14,7 @@ export const REF_RESOLVE = "resolve";
 export const REF_REST = "rest";
 export const REF_PROVIDED = "provided";
 export type Ref = string;
-//TODO model-define 也有一个，需要统一起来。
+//TODO model-define 也有一个，是否需要统一起来？
 export interface RefObject {
   protocol: string | undefined;
   path: string;

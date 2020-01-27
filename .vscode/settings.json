@@ -18,6 +18,7 @@
     "deepscan.enable": true,
     "favorites.resources": [
         "example.http",
-        "ms.http"
+        "ms.http",
+        "ms-outer.http"
     ]
 }
