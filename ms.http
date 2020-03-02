@@ -4,17 +4,17 @@ GET http://localhost:1111/models
 ###
 GET http://localhost:1111/models/front
 
-
-
-###  deufault get 
-GET http://localhost:1111/models/default
-
-
 ### default sources 
 GET http://localhost:1111/models/default/modelSources
 
 ### default logs 
 GET http://localhost:1111/models/default/logs
+
+
+
+
+###  deufault get 
+GET http://localhost:1111/models/default
 
 ### refresh
 POST http://localhost:1111/models/default/refresh
