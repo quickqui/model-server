@@ -177,10 +177,10 @@ export class ModelManager {
   }
 
   refresh() {
+    this.buildLogs = [];
     this.modelSources = undefined;
     this.originalModel = undefined;
     this.woveModel = undefined;
-    this.buildLogs = [];
     this.model = undefined;
   }
 
