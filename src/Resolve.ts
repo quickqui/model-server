@@ -1,8 +1,6 @@
 import * as path from "path";
 import ulog from "ulog";
-const log = ulog("Resolve");
 function _interopRequireDefault(obj: any) {
-  // log.debug(obj);
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
