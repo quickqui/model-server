@@ -11,6 +11,7 @@ import { ModelSource, includeRuntimeType } from "../source/ModelSource";
 import * as R from "ramda";
 import { ModelFile } from "../source/ModelFile";
 import { checkRuntimeType } from "../util/checkRuntimeType";
+import { env } from "../Env";
 
 export class FolderRepository implements ModelRepository {
   source!: ModelSource;
@@ -67,6 +68,7 @@ export class FolderRepository implements ModelRepository {
         return {
           fileName: path.basename(fPath),
           path: path.relative(absoluteBase, fPath),
+          relativeToModelDir:path.relative(env.modelProjectDir,absoluteBase),
           repositoryBase: absoluteBase,
           modelObject: yaml.safeLoad(fModelSource)
         } as ModelFile;
