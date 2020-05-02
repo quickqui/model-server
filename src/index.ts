@@ -8,6 +8,7 @@ import { env } from "./Env";
 import cors from "cors";
 import { toDTO } from "./source/ModelSource";
 import _ from "lodash";
+import { log } from "./util/Util";
 
 const app = express();
 const port = env.servicePort; // default port to listen
@@ -99,6 +100,26 @@ app.get("/models", (req, res, next) => {
   }
 });
 
+
+
+
+if (module.parent){
+  module.exports = {
+    run:()=>{
+      app.listen(port, () => {
+  // tslint:disable-next-line:no-console
+  log.info(`server started at http://localhost:${port}`);
+});
+    }
+  }
+}else{
+app.listen(port, () => {
+  // tslint:disable-next-line:no-console
+  log.info(`server started at http://localhost:${port}`);
+});
+}
+
+
 // app.post("/deploy", async function(req, res, next) {
 //   try {
 //     const model = (await modelManager.getModel()) as any;
@@ -142,7 +163,7 @@ app.get("/models", (req, res, next) => {
 //   }
 // });
 
-app.listen(port, () => {
-  // tslint:disable-next-line:no-console
-  console.log(`server started at http://localhost:${port}`);
-});
+
+
+
+
