@@ -62,7 +62,7 @@ get("/models/:id/logs", (res, modelManager) => {
   res
     .status(200)
     .header("Content-Range", logs.length)
-    //TODO 处理分页/排序/过滤
+    //MARK 处理分页/排序/过滤。 现在是在客户端处理的。
     .json(logs.map((log,index)=> _.extend({},log,{id:index+""})));
 });
 get("/models/:id/modelSources", async (res, modelManager) => {
