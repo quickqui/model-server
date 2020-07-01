@@ -4,7 +4,7 @@ import * as yaml from "js-yaml";
 
 import * as fs from "fs";
 import * as path from "path";
-import  readdir from "recursive-readdir";
+import readdir from "recursive-readdir";
 import minimatch from "minimatch";
 
 import { ModelSource, includeRuntimeType } from "../source/ModelSource";
@@ -29,7 +29,7 @@ export class FolderRepository implements ModelRepository {
       base.startsWith("/") ? base : process.cwd() + "/" + base
     );
     const files = await readdir(absoluteBase);
-    files.forEach(file => {
+    files.forEach((file) => {
       if (
         minimatch(file, "**/*.include.*") ||
         minimatch(file, "**/include.*")
@@ -58,19 +58,19 @@ export class FolderRepository implements ModelRepository {
     const {
       modelFiles,
       includeFiles,
-      absoluteBase
+      absoluteBase,
     } = await FolderRepository.findFiles(base);
 
-    const models: ModelFile[] = modelFiles.map(fPath => {
+    const models: ModelFile[] = modelFiles.map((fPath) => {
       if (fPath.endsWith(".yml") || fPath.endsWith(".yaml")) {
         const fModelSource = fs.readFileSync(fPath).toString();
 
         return {
           fileName: path.basename(fPath),
           path: path.relative(absoluteBase, fPath),
-          relativeToModelDir:path.relative(env.modelProjectDir,absoluteBase),
+          relativeToModelDir: path.relative(env.modelProjectDir, absoluteBase),
           repositoryBase: absoluteBase,
-          modelObject: yaml.safeLoad(fModelSource)
+          modelObject: yaml.safeLoad(fModelSource),
         } as ModelFile;
       } else {
         throw new Error(`not support file type - ${fPath}`);
@@ -78,7 +78,7 @@ export class FolderRepository implements ModelRepository {
     });
 
     const includes = includeFiles
-      .map(fPath => {
+      .map((fPath) => {
         const obj = yaml.safeLoad(fs.readFileSync(fPath).toString());
         return checkRuntimeType(obj, includeRuntimeType, fPath)["includes"];
       })
@@ -89,7 +89,7 @@ export class FolderRepository implements ModelRepository {
       description: description || `folder source - ${base}`,
       files: models,
       includes,
-      includeSources: []
+      includeSources: [],
     });
   }
 }
