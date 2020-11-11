@@ -13,7 +13,7 @@ import { log } from "./util/Util";
 const app = express();
 const port = env.servicePort; // default port to listen
 
-app.use(cors());
+app.use(cors({ exposedHeaders: "Content-Range,X-Content-Range" }));
 
 function withManager(req, res, fun: (modelManager: ModelManager) => void) {
   const managerId = req.params["id"] ?? "default";
@@ -37,9 +37,9 @@ function get(
   path: string,
   fun: (res, modelManager: ModelManager) => void
 ): void {
-  app.get(path, async function(req, res, next) {
+  app.get(path, async function (req, res, next) {
     withNext(next, () =>
-      withManager(req, res, modelManager => fun(res, modelManager))
+      withManager(req, res, (modelManager) => fun(res, modelManager))
     );
   });
 }
@@ -53,7 +53,7 @@ get("/models/:id", async (res, modelManager) => {
     res.status(404).json({
       code: 404,
       message: "Model not built successful, see next",
-      next: "/model/:id/logs"
+      next: "/models/:id/logs",
     });
 });
 
@@ -63,21 +63,18 @@ get("/models/:id/logs", (res, modelManager) => {
     .status(200)
     .header("Content-Range", logs.length)
     //MARK 处理分页/排序/过滤。 现在是在客户端处理的。
-    .json(logs.map((log,index)=> _.extend({},log,{id:index+""})));
+    .json(logs.map((log, index) => _.extend({}, log, { id: index + "" })));
 });
 get("/models/:id/modelSources", async (res, modelManager) => {
-  const sources = await modelManager.getSource().then(ss => ss.map(toDTO));
-  res
-    .status(200)
-    .header("Content-Range", sources.length)
-    .json(sources);
+  const sources = await modelManager.getSource().then((ss) => ss.map(toDTO));
+  res.status(200).header("Content-Range", sources.length).json(sources);
 });
 
-app.post("/models/:id/refresh", async function(req, res, next) {
+app.post("/models/:id/refresh", async function (req, res, next) {
   try {
-    withManager(req, res, modelManager => {
+    withManager(req, res, (modelManager) => {
       modelManager.refresh();
-      res.status(201).json({message:'refresh success'});
+      res.status(201).json({ message: "refresh success" });
     });
   } catch (e) {
     next(e);
@@ -100,25 +97,21 @@ app.get("/models", (req, res, next) => {
   }
 });
 
-
-
-
-if (module.parent){
+if (module.parent) {
   module.exports = {
-    run:()=>{
+    run: () => {
       app.listen(port, () => {
-  // tslint:disable-next-line:no-console
-  log.info(`server started at http://localhost:${port}`);
-});
-    }
-  }
-}else{
-app.listen(port, () => {
-  // tslint:disable-next-line:no-console
-  log.info(`server started at http://localhost:${port}`);
-});
+        // tslint:disable-next-line:no-console
+        log.info(`server started at http://localhost:${port}`);
+      });
+    },
+  };
+} else {
+  app.listen(port, () => {
+    // tslint:disable-next-line:no-console
+    log.info(`server started at http://localhost:${port}`);
+  });
 }
-
 
 // app.post("/deploy", async function(req, res, next) {
 //   try {
@@ -162,8 +155,3 @@ app.listen(port, () => {
 //     next(e);
 //   }
 // });
-
-
-
-
-

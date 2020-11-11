@@ -92,6 +92,7 @@ export class ModelManager {
           });
           if (define) {
             const piece = file.modelObject;
+            //IDEA if piece.type is function , piece=piece(model)
             const buildingContext = {
               modelSource,
               modelFile: file

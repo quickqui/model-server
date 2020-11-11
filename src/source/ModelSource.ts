@@ -11,6 +11,9 @@ import { ModelFile, fileToDTO } from "./ModelFile";
       module: "@quick-qui/model-defines"
       dir: "model"
  */
+/**
+ * TODO 还可以来个自动扫描，把node-modules的第一层扫一遍，找到所有的？
+ */
 
 export interface Location {
   protocol: string;

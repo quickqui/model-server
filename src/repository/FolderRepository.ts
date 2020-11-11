@@ -12,6 +12,7 @@ import * as R from "ramda";
 import { ModelFile } from "../source/ModelFile";
 import { checkRuntimeType } from "../util/checkRuntimeType";
 import { env } from "../Env";
+import { resolve } from "../Resolve";
 
 export class FolderRepository implements ModelRepository {
   source!: ModelSource;
@@ -71,6 +72,14 @@ export class FolderRepository implements ModelRepository {
           relativeToModelDir: path.relative(env.modelProjectDir, absoluteBase),
           repositoryBase: absoluteBase,
           modelObject: yaml.safeLoad(fModelSource),
+        } as ModelFile;
+      } else if (fPath.endsWith(".js")) {
+        return {
+          fileName: path.basename(fPath),
+          path: path.relative(absoluteBase, fPath),
+          relativeToModelDir: path.relative(env.modelProjectDir, absoluteBase),
+          repositoryBase: absoluteBase,
+          modelObject: require(fPath),
         } as ModelFile;
       } else {
         throw new Error(`not support file type - ${fPath}`);
