@@ -3,7 +3,7 @@ import {
   Model,
   ModelDefine,
   ModelWeaver,
-  ValidateError
+  ValidateError,
 } from "@quick-qui/model-core";
 import _ from "lodash";
 import minimatch from "minimatch";
@@ -14,7 +14,7 @@ import { ModelFile } from "../source/ModelFile";
 import {
   Location,
   ModelSource,
-  ModelSourceValidator
+  ModelSourceValidator,
 } from "../source/ModelSource";
 import { VLogError } from "../util/VLogError";
 import { ModelRepository } from "./ModelRepository";
@@ -27,10 +27,12 @@ export class ModelManager {
   private originalModel: Promise<Model> | undefined = undefined;
   private woveModel: Promise<Model> | undefined = undefined;
   private buildLogs: Log[] = [];
+  private root: string;
   //NOTE source validation暂时没有用,先留着吧。
   private sourceValidators: ModelSourceValidator[] = [];
-  constructor(main: Location) {
+  constructor(main: Location, root: string) {
     this.main = main;
+    this.root = root;
   }
 
   //RULE model 处理的几个阶段 -
@@ -47,8 +49,8 @@ export class ModelManager {
 
   async getSource(): Promise<ModelSource[]> {
     if (!this.modelSources) {
-      const builded: ModelSource[] = await this.build(this.main);
-      const errs = this.sourceValidators.map(_ => _.validate(builded)).flat();
+      const builded: ModelSource[] = await this.build(this.main, this.root);
+      const errs = this.sourceValidators.map((_) => _.validate(builded)).flat();
       if (errs.length != 0) {
         throw new VLogError("validate source failed", errs);
       }
@@ -58,7 +60,7 @@ export class ModelManager {
   }
 
   emptyModel: Model = {
-    type: "model"
+    type: "model",
   };
 
   async getOriginalModel(): Promise<Model> {
@@ -67,8 +69,8 @@ export class ModelManager {
       let model = this.emptyModel;
       //find defines
       const defineFiles: ModelFile[] = sources
-        .map(modelSource => {
-          return modelSource.files.filter(file => {
+        .map((modelSource) => {
+          return modelSource.files.filter((file) => {
             return minimatch(file.path, dynamicDefineFilePattern);
           });
         })
@@ -76,7 +78,7 @@ export class ModelManager {
 
       const dynamicDefines: ModelDefine[] = (
         await Promise.all(
-          defineFiles.map(async file =>
+          defineFiles.map(async (file) =>
             Promise.all(await dynamicDefine(file.path, file.repositoryBase))
           )
         )
@@ -85,8 +87,8 @@ export class ModelManager {
       dynamicDefines.forEach((d: ModelDefine) => this.defines.push(d));
 
       //merge
-      sources.forEach(modelSource =>
-        modelSource.files.forEach(file => {
+      sources.forEach((modelSource) =>
+        modelSource.files.forEach((file) => {
           const define = this.defines.find((def: ModelDefine) => {
             return minimatch(file.fileName, def.filePattern);
           });
@@ -95,7 +97,7 @@ export class ModelManager {
             //IDEA if piece.type is function , piece=piece(model)
             const buildingContext = {
               modelSource,
-              modelFile: file
+              modelFile: file,
             };
             const errors = define.validatePiece(model, piece, buildingContext);
             if (errors.length != 0) {
@@ -107,14 +109,14 @@ export class ModelManager {
             //do nothing
           } else {
             throw new VLogError(`no define find - ${file.fileName}`, [
-              new ValidateError(`files/${file.fileName}`, "no define find")
+              new ValidateError(`files/${file.fileName}`, "no define find"),
             ]);
           }
         })
       );
       //validate after merge
       const validateAfterMerge = this.defines
-        .map(def => {
+        .map((def) => {
           return def.validateAfterMerge(model);
         })
         .flat();
@@ -133,11 +135,11 @@ export class ModelManager {
 
       //weave
       let model = originalModel;
-      const weavers = this.defines.map(d => d.weavers).flat();
-      const sortedWeavers: ModelWeaver[] = _.sortBy(weavers, weaver => {
+      const weavers = this.defines.map((d) => d.weavers).flat();
+      const sortedWeavers: ModelWeaver[] = _.sortBy(weavers, (weaver) => {
         return weaver.order ?? 0;
       });
-      sortedWeavers.forEach(weaver => {
+      sortedWeavers.forEach((weaver) => {
         const [mo, log] = weaver.weave(model);
         this.buildLogs = this.buildLogs.concat(log);
         model = mo;
@@ -145,7 +147,7 @@ export class ModelManager {
       //validate after weave
 
       const validateAfterWeave = this.defines
-        .map(def => {
+        .map((def) => {
           return def.validateAfterWeave(model);
         })
         .flat();
@@ -185,24 +187,27 @@ export class ModelManager {
     this.model = undefined;
   }
 
-  private async build(location: Location): Promise<ModelSource[]> {
-    const repository = await this.resolve(location);
+  private async build(
+    location: Location,
+    root: string
+  ): Promise<ModelSource[]> {
+    const repository = await this.resolve(location, root);
     const includes: Location[] = repository.source.includes;
     const includeModel: ModelSource[][] = await Promise.all(
-      includes.map(include => this.build(include))
+      includes.map((include) => this.build(include, root))
     );
     const modelSource = repository.source;
-    modelSource.includeSources = includeModel.map(_ => _[0]);
+    modelSource.includeSources = includeModel.map((_) => _[0]);
     return includeModel.reduce((a, b) => a.concat(b), [modelSource]); //第一个source是自己，后面的source是include的
   }
 
-  private resolve(location: Location): Promise<ModelRepository> {
+  private resolve(location: Location, root: string): Promise<ModelRepository> {
     if (location.protocol === "folder") {
-      return FolderRepository.build(location.resource);
+      return FolderRepository.build(location.resource, root);
     }
 
     if (location.protocol === "library") {
-      return LibraryRepository.build(location.resource);
+      return LibraryRepository.build(location.resource, root);
     }
     throw new Error(
       "Location not supported (yet)- " + JSON.stringify(location)

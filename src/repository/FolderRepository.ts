@@ -11,7 +11,6 @@ import { ModelSource, includeRuntimeType } from "../source/ModelSource";
 import * as R from "ramda";
 import { ModelFile } from "../source/ModelFile";
 import { checkRuntimeType } from "../util/checkRuntimeType";
-import { env } from "../Env";
 import { resolve } from "../Resolve";
 
 export class FolderRepository implements ModelRepository {
@@ -53,6 +52,7 @@ export class FolderRepository implements ModelRepository {
 
   static async build(
     base: string,
+    root: string,
     description?: string,
     name?: string
   ): Promise<ModelRepository> {
@@ -69,7 +69,7 @@ export class FolderRepository implements ModelRepository {
         return {
           fileName: path.basename(fPath),
           path: path.relative(absoluteBase, fPath),
-          relativeToModelDir: path.relative(env.modelProjectDir, absoluteBase),
+          relativeToModelDir: path.relative(root, absoluteBase),
           repositoryBase: absoluteBase,
           modelObject: yaml.safeLoad(fModelSource),
         } as ModelFile;
@@ -77,7 +77,7 @@ export class FolderRepository implements ModelRepository {
         return {
           fileName: path.basename(fPath),
           path: path.relative(absoluteBase, fPath),
-          relativeToModelDir: path.relative(env.modelProjectDir, absoluteBase),
+          relativeToModelDir: path.relative(root, absoluteBase),
           repositoryBase: absoluteBase,
           modelObject: require(fPath),
         } as ModelFile;

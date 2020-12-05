@@ -7,7 +7,7 @@ const modelProjectDir = env.modelProjectDir;
 const defaultModelManager = new ModelManager({
   protocol: "folder",
   resource: modelProjectDir + "/model"
-});
+},modelProjectDir);
 
 export function getManagers(): ManagerCell[] {
   return Array.from(multipleModels.values());

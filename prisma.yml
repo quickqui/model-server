@@ -1,2 +1,0 @@
-endpoint: http://prisma:4466
-datamodel: ./model/dataModel.prisma

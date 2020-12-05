@@ -9,6 +9,9 @@
   "files": [
     "dist"
   ],
+  "jest": {
+    "rootDir": "dist"
+  },
   "dependencies": {
     "@hapi/joi": "^14.5.0",
     "@quick-qui/model-core": "^2.0.3",
@@ -31,9 +34,12 @@
     "typescript": "^3.9.2"
   },
   "devDependencies": {
+    "@quick-qui/model-defines": "^2.7.0",
     "@types/express": "^4.17.6",
+    "@types/jest": "^26.0.16",
     "@types/node": "^12.12.39",
     "cross-conf-env": "^1.1.2",
+    "jest": "^26.6.3",
     "ts-json-schema-generator": "^0.56.0",
     "ts-node": "^8.10.1"
   },
@@ -41,6 +47,7 @@
   "scripts": {
     "start-ts": "ts-node  src/index.ts",
     "start": "node dist/index.js",
+    "test": "jest",
     "dev:start": "nodemon -x ts-node  src/index.ts",
     "docker:build": "cross-conf-env docker image build . -t $npm_package_config_imageRepo:$npm_package_version",
     "postdocker:build": "npm run docker:tag",
