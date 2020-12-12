@@ -20,6 +20,7 @@ export class LibraryRepository {
     if (folder)
       return FolderRepository.build(
         folder,
+        folder,
         `library source - ${JSON.stringify(library)}`,
         library.module
       );
