@@ -46,7 +46,7 @@ export async function dynamicDefine(
     const fModelSource = fs
       .readFileSync(path.join(repositoryBase, filePath))
       .toString();
-    const obj = yaml.safeLoad(fModelSource);
+    const obj: any = yaml.safeLoad(fModelSource);
     if (!obj.defines || (obj.defines && !_(obj.defines).isArray())) {
       throw new Error(`define file is not correct - ${filePath}`);
     } else {
@@ -73,7 +73,7 @@ async function forOne(obj: Define, baseDir: string): Promise<ModelDefine> {
     const re = {
       name: obj.name,
       filePattern: obj.filePattern,
-      ...extendObj
+      ...extendObj,
     };
     return checkRuntimeType(re, modelDefineRuntimeType, obj.name);
   }

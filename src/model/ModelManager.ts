@@ -19,6 +19,8 @@ import {
 import { VLogError } from "../util/VLogError";
 import { ModelRepository } from "./ModelRepository";
 
+import getPort from "get-port";
+import { evaluate } from "./evaluate";
 export class ModelManager {
   private defines: ModelDefine[] = [];
   private main: Location;
@@ -163,7 +165,9 @@ export class ModelManager {
     if (!this.model) {
       try {
         const woven = await this.getWovenModel();
-        this.model = Promise.resolve(woven);
+        //对model级别的表达式求值
+        const evaluated = (await evaluate(woven))[0];
+        this.model = Promise.resolve(evaluated);
       } catch (err) {
         if (err instanceof VLogError) {
           this.buildLogs = this.buildLogs.concat(err.logs);

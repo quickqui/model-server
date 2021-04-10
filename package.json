@@ -15,7 +15,9 @@
   "dependencies": {
     "@hapi/joi": "^14.5.0",
     "@quick-qui/model-core": "^2.0.3",
+    "@quick-qui/util": "^1.2.2",
     "@types/cors": "^2.8.6",
+    "@types/get-port": "^4.2.0",
     "@types/hapi__joi": "^15.0.4",
     "@types/js-yaml": "^3.12.3",
     "@types/lodash": "^4.14.150",
@@ -27,11 +29,12 @@
     "enjoi": "^6.0.2",
     "express": "^4.17.1",
     "io-ts": "^2.2.2",
+    "jexl": "^2.3.0",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
+    "portfinder": "^1.0.28",
     "ramda": "^0.26.1",
-    "recursive-readdir": "^2.2.2",
-    "typescript": "^3.9.2"
+    "recursive-readdir": "^2.2.2"
   },
   "devDependencies": {
     "@quick-qui/model-defines": "^2.7.0",
@@ -41,7 +44,8 @@
     "cross-conf-env": "^1.1.2",
     "jest": "^26.6.3",
     "ts-json-schema-generator": "^0.56.0",
-    "ts-node": "^8.10.1"
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.2"
   },
   "license": "MIT",
   "scripts": {

@@ -1,5 +1,4 @@
 import * as path from "path";
-import ulog from "ulog";
 function _interopRequireDefault(obj: any) {
   return obj && obj.__esModule ? obj : { default: obj };
 }

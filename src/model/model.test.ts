@@ -1,34 +1,73 @@
 import { ModelManager } from "./ModelManager";
 import path from "path";
-import { withDomainModel, withInfoModel } from "@quick-qui/model-defines";
+import {
+  withDomainModel,
+  withInfoModel,
+  withImplementationModel,
+} from "@quick-qui/model-defines";
 
-test("empty folder", () => {
-  const manager = new ModelManager(
-    {
-      protocol: "folder",
-      resource: "./testModel",
-    },
-    "."
-  );
-  expect(manager).not.toBeUndefined;
-});
+describe("models", () => {
+  test("empty folder", () => {
+    const manager = new ModelManager(
+      {
+        protocol: "folder",
+        resource: "./testModel",
+      },
+      "."
+    );
+    expect(manager).not.toBeUndefined;
+  });
 
-test("a typical model", () => {
-  const proPath = path.join(process.cwd(), "../prototype");
-  console.log(`${proPath}`);
-  const manager = new ModelManager(
-    {
-      protocol: "folder",
-      resource: path.join(proPath, "model"),
-    },
-    proPath
-  );
-  expect(manager).not.toBeUndefined;
-  const model = manager.getModel();
-  return model.then((m) => {
-    expect(m).not.toBeUndefined;
+  test("a typical model", async () => {
+    expect.hasAssertions();
+    const proPath = path.join(process.cwd(), "../prototype");
+    const manager = new ModelManager(
+      {
+        protocol: "folder",
+        resource: path.join(proPath, "model"),
+      },
+      proPath
+    );
+    expect(manager).not.toBeUndefined;
+    const model = await manager.getModel();
+    expect(model).not.toBeUndefined;
     expect(manager.getBuildLogs().length).not.toBe(0);
-    expect(withDomainModel(m)?.domainModel?.entities?.length).not.toBe(0);
-    expect(withInfoModel(m)?.infoModel).not.toBeUndefined
+    expect(withDomainModel(model)?.domainModel?.entities?.length).not.toBe(0);
+    expect(withInfoModel(model)?.infoModel).not.toBeUndefined;
+  });
+
+  test("a typical model with evaluate", async () => {
+    expect.hasAssertions();
+    const proPath = path.join(process.cwd(), "../prototype");
+    console.log(`${proPath}`);
+    const manager = new ModelManager(
+      {
+        protocol: "folder",
+        resource: path.join(proPath, "model"),
+      },
+      proPath
+    );
+    expect(manager).not.toBeUndefined;
+    const model = await manager.getModel();
+    expect(model).not.toBeUndefined;
+    expect(manager.getBuildLogs().length).not.toBe(0);
+    expect(withDomainModel(model)?.domainModel?.entities?.length).not.toBe(0);
+    expect(withInfoModel(model)?.infoModel).not.toBeUndefined;
+    expect(withImplementationModel(model)?.implementationModel).not
+      .toBeUndefined;
+    // expect(
+    //   withImplementationModel(model)?.implementationModel?.implementations
+    // ).toEqual(
+    //   expect.arrayContaining([
+    //     expect.objectContaining({
+    //       env: expect.objectContaining({ PORT: 4001 }),
+    //     }),
+    //     expect.objectContaining({
+    //       env: expect.objectContaining({
+    //         APP_SERVER_URL: "http://localhost:4001",
+    //       }),
+    //     }),
+    //   ])
+    // );
   });
 });
