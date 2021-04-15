@@ -1,4 +1,5 @@
 
+import { logging } from "@quick-qui/util";
 
 
 export function no(name: string) {
@@ -6,6 +7,7 @@ export function no(name: string) {
 }
 
 
-export const log = require("debug-logger")("quick-qui:model-server");
+export const log = logging("quick-qui:model-server");
+
 
 
