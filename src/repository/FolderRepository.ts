@@ -71,7 +71,7 @@ export class FolderRepository implements ModelRepository {
           path: path.relative(absoluteBase, fPath),
           relativeToModelDir: path.relative(root, absoluteBase),
           repositoryBase: absoluteBase,
-          modelObject: yaml.safeLoad(fModelSource),
+          modelObject: yaml.load(fModelSource),
         } as ModelFile;
       } else if (fPath.endsWith(".js")) {
         return {
@@ -88,7 +88,7 @@ export class FolderRepository implements ModelRepository {
 
     const includes = includeFiles
       .map((fPath) => {
-        const obj = yaml.safeLoad(fs.readFileSync(fPath).toString());
+        const obj = yaml.load(fs.readFileSync(fPath).toString());
         return checkRuntimeType(obj, includeRuntimeType, fPath)["includes"];
       })
       .flat();

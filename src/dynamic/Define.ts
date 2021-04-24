@@ -46,7 +46,7 @@ export async function dynamicDefine(
     const fModelSource = fs
       .readFileSync(path.join(repositoryBase, filePath))
       .toString();
-    const obj: any = yaml.safeLoad(fModelSource);
+    const obj: any = yaml.load(fModelSource);
     if (!obj.defines || (obj.defines && !_(obj.defines).isArray())) {
       throw new Error(`define file is not correct - ${filePath}`);
     } else {
