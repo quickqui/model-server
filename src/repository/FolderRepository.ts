@@ -12,6 +12,7 @@ import * as R from "ramda";
 import { ModelFile } from "../source/ModelFile";
 import { checkRuntimeType } from "../util/checkRuntimeType";
 import { resolve } from "../Resolve";
+import { notNil } from "@quick-qui/util";
 
 export class FolderRepository implements ModelRepository {
   source!: ModelSource;
@@ -62,29 +63,34 @@ export class FolderRepository implements ModelRepository {
       absoluteBase,
     } = await FolderRepository.findFiles(base);
 
-    const models: ModelFile[] = modelFiles.map((fPath) => {
-      if (fPath.endsWith(".yml") || fPath.endsWith(".yaml")) {
-        const fModelSource = fs.readFileSync(fPath).toString();
+    const models: ModelFile[] = modelFiles
+      .map((fPath) => {
+        if (fPath.startsWith(".")) {
+          //do nothing
+          return undefined;
+        } else if (fPath.endsWith(".yml") || fPath.endsWith(".yaml")) {
+          const fModelSource = fs.readFileSync(fPath).toString();
 
-        return {
-          fileName: path.basename(fPath),
-          path: path.relative(absoluteBase, fPath),
-          relativeToModelDir: path.relative(root, absoluteBase),
-          repositoryBase: absoluteBase,
-          modelObject: yaml.load(fModelSource),
-        } as ModelFile;
-      } else if (fPath.endsWith(".js")) {
-        return {
-          fileName: path.basename(fPath),
-          path: path.relative(absoluteBase, fPath),
-          relativeToModelDir: path.relative(root, absoluteBase),
-          repositoryBase: absoluteBase,
-          modelObject: require(fPath),
-        } as ModelFile;
-      } else {
-        throw new Error(`not support file type - ${fPath}`);
-      }
-    });
+          return {
+            fileName: path.basename(fPath),
+            path: path.relative(absoluteBase, fPath),
+            relativeToModelDir: path.relative(root, absoluteBase),
+            repositoryBase: absoluteBase,
+            modelObject: yaml.load(fModelSource),
+          } as ModelFile;
+        } else if (fPath.endsWith(".js")) {
+          return {
+            fileName: path.basename(fPath),
+            path: path.relative(absoluteBase, fPath),
+            relativeToModelDir: path.relative(root, absoluteBase),
+            repositoryBase: absoluteBase,
+            modelObject: require(fPath),
+          } as ModelFile;
+        } else {
+          throw new Error(`not support file type - ${fPath}`);
+        }
+      })
+      .filter(notNil);
 
     const includes = includeFiles
       .map((fPath) => {
