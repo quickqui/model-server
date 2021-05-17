@@ -65,7 +65,7 @@ export class FolderRepository implements ModelRepository {
 
     const models: ModelFile[] = modelFiles
       .map((fPath) => {
-        if (fPath.startsWith(".")) {
+        if (path.basename(fPath).startsWith(".")) {
           //do nothing
           return undefined;
         } else if (fPath.endsWith(".yml") || fPath.endsWith(".yaml")) {
