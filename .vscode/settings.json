@@ -21,5 +21,8 @@
         "example.http",
         "ms.http",
         "ms-outer.http"
-    ]
+    ],
+    "files.watcherExclude": {
+        "**/target": true
+    }
 }

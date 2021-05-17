@@ -3,3 +3,4 @@ generated
 tmp
 dist
 .history
+.metals
