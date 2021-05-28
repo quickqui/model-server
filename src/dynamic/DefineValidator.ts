@@ -3,14 +3,13 @@ import { Define } from "./Define";
 
 
 import enjoi from "enjoi";
-import * as joi from "@hapi/joi";
 import schema from "./DefineSchema.json";
 const s = enjoi.schema(schema);
 
 export function bySchema(defines:Define[]): ValidateError[] {
   return defines
     .map(def => {
-      const { error, value } = joi.validate(def, s, { abortEarly: false });
+      const { error, value } = s.validate(def, { abortEarly: false });
 
       return (
         error?.details.map(detail => {
