@@ -1,10 +1,4 @@
-import {
-  Log,
-  Model,
-  ModelDefine,
-  ModelWeaver,
-  ValidateError,
-} from "@quick-qui/model-core";
+import { Log, Model, ModelDefine, ModelWeaver } from "@quick-qui/model-core";
 import _ from "lodash";
 import minimatch from "minimatch";
 import { dynamicDefine, dynamicDefineFilePattern } from "../dynamic/Define";
@@ -18,9 +12,8 @@ import {
 } from "../source/ModelSource";
 import { VLogError } from "../util/VLogError";
 import { ModelRepository } from "./ModelRepository";
-
-import getPort from "get-port";
 import { evaluate } from "./evaluate";
+import { ValidateError } from "@quick-qui/model-core";
 export class ModelManager {
   private defines: ModelDefine[] = [];
   private main: Location;
@@ -91,32 +84,64 @@ export class ModelManager {
       //merge
       sources.forEach((modelSource) =>
         modelSource.files.forEach((file) => {
-          const define = this.defines.find((def: ModelDefine) => {
-            return minimatch(file.fileName, def.filePattern);
-          });
-          if (define) {
-            const piece = file.modelObject;
-            //IDEA if piece.type is function , piece=piece(model)
-            const buildingContext = {
-              modelSource,
-              modelFile: file,
-            };
-            const errors = define.validatePiece(model, piece, buildingContext);
-            if (errors.length != 0) {
-              throw new VLogError("validate piece failed", errors);
-            } else {
-              model = define.merge(model, piece, buildingContext);
-            }
-          } else if (minimatch(file.fileName, dynamicDefineFilePattern)) {
-            //do nothing
+          if (minimatch(file.fileName, dynamicDefineFilePattern)) {
+            //define 定义文件，啥都不干。
           } else {
-            throw new VLogError(`no define find - ${file.fileName}`, [
-              new ValidateError(`files/${file.fileName}`, "no define find"),
-            ]);
+            //所有match这个文件的define参与merge。
+            const allDefines = this.defines.filter((def: ModelDefine) => {
+              return (
+                def.filePattern === undefined ||
+                minimatch(file.fileName, def.filePattern)
+              );
+            });
+            if (allDefines.length === 0) {
+              throw new VLogError(`no define find - ${file.fileName}`, [
+                new ValidateError(`files/${file.fileName}`, "no define find"),
+              ]);
+            } else {
+              allDefines.forEach((define) => {
+                const piece = file.modelObject;
+                let matched = {};
+                //IDEA if piece.type is function , piece=piece(model)
+                if (define.objectPattern) {
+                  matched = _.get(piece, define.objectPattern);
+                }
+                const buildingContext = {
+                  modelSource,
+                  modelFile: file,
+                };
+                if (matched !== undefined) {
+                  const errors = define.validatePiece(
+                    model,
+                    piece,
+                    buildingContext
+                  );
+                  if (errors.length != 0) {
+                    throw new VLogError("validate piece failed", errors);
+                  } else {
+                    if (define.normalize) {
+                      const [normalizedPiece, logs] = define.normalize(
+                        model,
+                        piece
+                      );
+                      model = define.merge(
+                        model,
+                        normalizedPiece,
+                        buildingContext
+                      );
+                      this.buildLogs = this.buildLogs.concat(logs);
+                    } else {
+                      model = define.merge(model, piece, buildingContext);
+                    }
+                  }
+                }
+              });
+            }
           }
         })
       );
       //validate after merge
+      //所有define参加。
       const validateAfterMerge = this.defines
         .map((def) => {
           return def.validateAfterMerge(model);
@@ -136,6 +161,7 @@ export class ModelManager {
       const originalModel = await this.getOriginalModel();
 
       //weave
+      //所有define参加。
       let model = originalModel;
       const weavers = this.defines.map((d) => d.weavers).flat();
       const sortedWeavers: ModelWeaver[] = _.sortBy(weavers, (weaver) => {
@@ -147,7 +173,7 @@ export class ModelManager {
         model = mo;
       });
       //validate after weave
-
+      //所有define参加。
       const validateAfterWeave = this.defines
         .map((def) => {
           return def.validateAfterWeave(model);

@@ -1,5 +1,4 @@
 import express from "express";
-import bodyParser from "body-parser";
 
 import { ModelManager } from "./model/ModelManager";
 import { getManager, getManagers, ManagerCell } from "./MultiModel";
@@ -44,7 +43,6 @@ function get(
   });
 }
 
-app.use(bodyParser.text());
 
 get("/models/:id", async (res, modelManager) => {
   const model = await modelManager.getModel();
@@ -96,8 +94,12 @@ app.get("/models", (req, res, next) => {
     next(e);
   }
 });
-
-if (module.parent) {
+if (require.main === module) {
+  app.listen(port, () => {
+    // tslint:disable-next-line:no-console
+    log.info(`server started at http://localhost:${port}`);
+  });
+} else {
   module.exports = {
     run: () => {
       app.listen(port, () => {
@@ -106,11 +108,6 @@ if (module.parent) {
       });
     },
   };
-} else {
-  app.listen(port, () => {
-    // tslint:disable-next-line:no-console
-    log.info(`server started at http://localhost:${port}`);
-  });
 }
 
 // app.post("/deploy", async function(req, res, next) {

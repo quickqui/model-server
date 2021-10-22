@@ -13,12 +13,14 @@
         },
         "name": {
           "type": "string"
+        },
+        "objectPattern": {
+          "type": "string"
         }
       },
       "required": [
         "define",
-        "name",
-        "filePattern"
+        "name"
       ],
       "type": "object"
     },

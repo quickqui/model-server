@@ -3,7 +3,7 @@ import _ from "lodash";
 import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { resolve } from "../Resolve";
-import { ModelDefine, modelDefineRuntimeType } from "@quick-qui/model-core";
+import { ModelDefine } from "@quick-qui/model-core";
 
 import { checkRuntimeType } from "../util/checkRuntimeType";
 import * as path from "path";
@@ -33,7 +33,8 @@ export function parseRef(ref: Ref): RefObject {
 export interface Define {
   define: Ref;
   name: string;
-  filePattern: string;
+  filePattern?: string;
+  objectPattern?: string;
 }
 
 export const dynamicDefineFilePattern: string = "**/**.define.yml";
@@ -73,9 +74,10 @@ async function forOne(obj: Define, baseDir: string): Promise<ModelDefine> {
     const re = {
       name: obj.name,
       filePattern: obj.filePattern,
+      objectPattern: obj.objectPattern,
       ...extendObj,
     };
-    return checkRuntimeType(re, modelDefineRuntimeType, obj.name);
+    return checkRuntimeType(re, undefined, obj.name);
   }
   throw new Error(`can not find ref - ${ref}`);
 }

@@ -3,7 +3,6 @@ import path from "path";
 import {
   withDomainModel,
   withInfoModel,
-  withImplementationModel,
 } from "@quick-qui/model-defines";
 
 describe("models", () => {
@@ -32,6 +31,7 @@ describe("models", () => {
     const model = await manager.getModel();
     expect(model).not.toBeUndefined;
     expect(manager.getBuildLogs().length).not.toBe(0);
+    // console.log(manager.getBuildLogs())
     expect(withDomainModel(model)?.domainModel?.entities?.length).not.toBe(0);
     expect(withInfoModel(model)?.infoModel).not.toBeUndefined;
   });
@@ -53,8 +53,7 @@ describe("models", () => {
     expect(manager.getBuildLogs().length).not.toBe(0);
     expect(withDomainModel(model)?.domainModel?.entities?.length).not.toBe(0);
     expect(withInfoModel(model)?.infoModel).not.toBeUndefined;
-    expect(withImplementationModel(model)?.implementationModel).not
-      .toBeUndefined;
+   
     // expect(
     //   withImplementationModel(model)?.implementationModel?.implementations
     // ).toEqual(
